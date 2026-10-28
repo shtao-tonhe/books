@@ -1,0 +1,321 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Lora:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+}
+
+html {
+  color-scheme: light dark;
+  scroll-behavior: smooth;
+  /* 隐藏页面滚动条：仍可滚动，只是不占位、不显示 */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+body {
+  min-height: 100dvh;
+  font-family: var(--font-serif-body);
+  background: radial-gradient(1200px 800px at 50% -10%, var(--glow-1), transparent),
+              radial-gradient(900px 700px at 80% 10%, var(--glow-2), transparent),
+              var(--bg);
+  color: var(--text-primary);
+  line-height: 1.8;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--dur-slow) var(--ease-out-expo), color var(--dur-slow) var(--ease-out-expo);
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* 顶部大图高度：大图与正文的起始位置共用同一个变量，避免两边对不齐 */
+:root {
+  --banner-h: clamp(360px, 48vh, 680px);
+}
+
+.page-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--banner-h);
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+  z-index: 0;
+}
+
+.page-banner__image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.02);
+}
+
+.page-banner__overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(140% 140% at 50% 0%, rgba(0, 0, 0, 0.06) 0%, transparent 55%);
+}
+
+[data-theme="dark"] .page-banner__overlay {
+  background: radial-gradient(140% 140% at 50% 0%, rgba(0, 0, 0, 0.18) 0%, transparent 58%);
+}
+
+.page-banner__fade {
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 40%;
+  background: linear-gradient(180deg, transparent 0%, var(--bg) 100%);
+}
+
+/* ---------- 顶部栏 ----------
+   固定在最上层：页面未滚动时完全透明；滚动越过顶部大图后浮成一条玻璃条
+   ========================================================= */
+
+.site-header {
+  --header-gap: 12px;
+  --search-rest-w: 42px;
+
+  /* 注意：这里不能用带 fill-forwards 的 opacity 动画。
+     Chrome 会把该元素当成合成组，导致 ::before 的 backdrop-filter 采不到页面内容（玻璃失效）。
+     所以用不带 fill 的入场动画，结束后自动回到自身样式。 */
+  animation: header-in var(--dur-slow) var(--ease-out-expo);
+
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 12;
+  display: flex;
+  justify-content: center;
+  padding-inline: calc(clamp(32px, 10vw, 160px) / 2);
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  transition: border-color var(--dur-med) var(--ease-out-expo);
+}
+
+/* 玻璃底用伪元素做，才能淡入淡出（backdrop-filter 本身不可过渡） */
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* 高斯磨砂：靠大半径模糊把下方正文糊成色块（"透"的是颜色，不是文字），
+     底色只叠三成多，摸起来是玻璃而不是一块实心板 */
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  backdrop-filter: blur(20px) saturate(0.6);
+  -webkit-backdrop-filter: blur(20px) saturate(0.6);
+  /* 玻璃上沿一道极细的高光 */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out-expo);
+}
+
+@keyframes header-in {
+  from {
+    opacity: 0;
+    translate: 0 -6px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.site-header.is-condensed,
+.site-header.is-searching {
+  border-bottom-color: var(--border-subtle);
+}
+
+.site-header.is-condensed::before,
+.site-header.is-searching::before {
+  opacity: 1;
+}
+
+/* 深色下正文是浅色，穿透力更强，玻璃再浓一点 */
+[data-theme="dark"] .site-header::before {
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header {
+    animation: none;
+  }
+}
+
+.site-header__bar {
+  width: min(1300px, 100%);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--header-gap);
+  padding-block: clamp(12px, 1.8vw, 18px);
+}
+
+.site-header__lead {
+  grid-column: 1;
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.site-header__search {
+  grid-column: 2;
+  justify-self: center;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.site-header__trail {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: color-mix(in srgb, var(--surface-2) 88%, transparent);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  transition: all var(--dur-fast) var(--ease-spring);
+  box-shadow: 0 10px 40px -30px rgba(40, 30, 18, 0.9);
+}
+
+.theme-toggle:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--surface-2) 96%, transparent);
+}
+
+[data-theme="dark"] .theme-toggle,
+[data-theme="dark"] .filter-chip,
+[data-theme="dark"] .back-link,
+[data-theme="dark"] .detail-link,
+[data-theme="dark"] .detail-file {
+  box-shadow: 0 12px 50px -36px rgba(0, 0, 0, 0.95);
+}
+
+.theme-toggle__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 8vw, 30px);
+  width: min(1300px, calc(100% - clamp(32px, 10vw, 160px)));
+  margin: 0 auto;
+  padding: calc(var(--banner-h) + clamp(18px, 6vw, 20px)) 0 clamp(80px, 12vw, 160px);
+}
+
+@media (max-width: 720px) {
+  :root {
+    --banner-h: clamp(300px, 44vh, 520px);
+  }
+  .site-header {
+    padding-inline: calc(clamp(24px, 8vw, 80px) / 2);
+  }
+  /* 窄屏改成 flex：搜索框占据中间剩余空间，避免与右侧主题按钮重叠 */
+  .site-header__bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .site-header__lead {
+    flex: 0 0 auto;
+  }
+  .site-header__search {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .site-header__trail {
+    flex: 0 0 auto;
+  }
+  main {
+    width: min(1300px, calc(100% - clamp(24px, 8vw, 80px)));
+    padding: calc(var(--banner-h) + clamp(16px, 6vw, 32px)) 0 clamp(64px, 10vw, 120px);
+  }
+}
+
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.fade-in {
+  opacity: 0;
+  /* 用独立的 translate 属性，把 transform 留给交互动效 */
+  translate: 0 14px;
+  animation: fade-in var(--dur-slow) var(--ease-out-expo) forwards;
+}
+
+.fade-in:nth-child(2) { animation-delay: 60ms; }
+.fade-in:nth-child(3) { animation-delay: 120ms; }
+.fade-in:nth-child(4) { animation-delay: 180ms; }
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}

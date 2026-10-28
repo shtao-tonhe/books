@@ -1,0 +1,26 @@
+/* =========================================================
+   待读（无封面）星尘占位层：卡片封面区 + 弹窗缩略图共用
+   ========================================================= */
+
+.book-card__cover-area--spoiler {
+  position: relative;
+  overflow: hidden;
+}
+
+.book-card__spoiler-blur {
+  position: absolute;
+  inset: -14%;
+  background: radial-gradient(140% 140% at 50% 18%, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 68%),
+              radial-gradient(110% 110% at 50% 82%, rgba(0, 0, 0, 0.16) 0%, transparent 72%);
+  filter: blur(24px);
+  opacity: 0.95;
+}
+
+.book-card__spoiler-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 2;
+}

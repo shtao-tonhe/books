@@ -1,0 +1,481 @@
+/* =========================================================
+   书架（列表） + 书籍详情弹层
+   描边动画：hover 持续 5s，沿卡片真实路径 0 → 100% 匀速绘制
+   ========================================================= */
+
+.shelf-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 4vw, 32px);
+  /* 筛选到零结果时页面不至于瞬间塌陷，避免滚动位置被顶回顶部 */
+  min-height: clamp(240px, 42vh, 460px);
+}
+
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: clamp(18px, 4vw, 36px);
+}
+
+.shelf-empty {
+  padding: clamp(48px, 10vw, 96px) 0;
+  text-align: center;
+  color: var(--text-tertiary);
+  letter-spacing: 0.16em;
+  font-size: 14px;
+}
+
+.book-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-radius: calc(var(--radius-lg) - 2px);
+  isolation: isolate;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--dur-slow) var(--ease-spring);
+}
+
+.book-card:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 6px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .book-card:hover {
+    transform: translateY(-5px);
+    z-index: 2;
+  }
+}
+
+/* ---------- 描边层 ---------- */
+
+.book-card__border {
+  /* 向外扩一圈（= js/shelf.js 的 TRACE_PAD）：描边落在卡片轮廓外侧，浅色页面上更清晰 */
+  position: absolute;
+  inset: -8px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms var(--ease-spring);
+}
+
+.book-card.is-tracing .book-card__border,
+.book-card.is-traced .book-card__border {
+  opacity: 1;
+}
+
+.book-card__border-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.book-card__border-track,
+.book-card__border-stroke {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 底轨：让「正在绘制」这件事可被看见（进度轨道） */
+.book-card__border-track {
+  stroke: color-mix(in srgb, var(--accent) 32%, transparent);
+  stroke-width: 1px;
+  opacity: 0;
+  transition: opacity 320ms var(--ease-out-expo);
+}
+
+.book-card.is-tracing .book-card__border-track {
+  opacity: 1;
+}
+
+/* 主描边：pathLength=1，dasharray/dashoffset 都在 0~1 之间插值 */
+.book-card__border-stroke {
+  stroke: var(--accent-strong);
+  stroke-width: 2px;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 38%, transparent));
+}
+
+/* ---------- 卡片本体 ---------- */
+
+.book-card__inner {
+  position: relative;
+  flex: 1 1 auto; /* 卡片被网格等高拉伸时，内容块跟着填满，否则底部会露出空隙 */
+  display: flex;
+  flex-direction: column;
+  border-radius: inherit;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface-2) 92%, transparent);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+  transition:
+    box-shadow var(--dur-slow) var(--ease-spring),
+    border-color var(--dur-med) var(--ease-spring);
+}
+
+.book-card:hover .book-card__inner {
+  box-shadow: var(--shadow-hover);
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border-subtle));
+}
+
+.book-card__cover-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(18px, 4vw, 26px);
+  background: radial-gradient(120% 120% at 50% 0%, var(--book-card-accent, var(--glow-1)) 0%, var(--book-card-bg-bottom, var(--bg-elev)) 100%);
+  overflow: hidden;
+  min-height: clamp(220px, 28vw, 280px);
+}
+
+.book-card__cover-frame {
+  position: relative;
+  width: clamp(150px, 46%, 190px);
+  aspect-ratio: 3 / 4.2;
+  border-radius: calc(var(--radius-md) - 4px);
+  overflow: hidden;
+  box-shadow: 0 40px 80px -60px rgba(0, 0, 0, 0.9);
+  transform-origin: 50% 50%;
+  transition:
+    transform var(--dur-slow) var(--ease-spring),
+    box-shadow var(--dur-slow) var(--ease-spring);
+}
+
+.book-card__cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: 50% 50%;
+  transition: transform 620ms var(--ease-out-expo);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .book-card:hover .book-card__cover-frame {
+    transform: scale(1.055);
+    box-shadow: 0 26px 52px -30px color-mix(in srgb, var(--accent-strong) 55%, transparent);
+  }
+  .book-card:hover .book-card__cover {
+    transform: scale(1.045);
+  }
+}
+
+.book-card__cover-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 120% at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* 推荐角标：紫金 + 麦穗奖章风格 */
+.book-card__pin {
+  --pin-gold: #eccb8b;
+  --pin-gold-soft: #fff1cb;
+  --pin-purple: #e056fd;
+  --pin-purple-deep: #8558cc;
+
+  /* 麦穗三件套：宽度 / 距边缘 / 距文字，改这三个值就能调间距 */
+  --pin-sprig-w: 15px;
+  --pin-sprig-h: 20px;
+  --pin-sprig-inset: 5px;
+  --pin-sprig-gap: 3px;
+
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 左右留出「边距 + 麦穗 + 间隙」，文字自然居中 */
+  padding: 2px calc(var(--pin-sprig-inset) + var(--pin-sprig-w) + var(--pin-sprig-gap));
+  border-radius: 999px;
+  border: 0.5px solid var(--pin-gold);
+  background: linear-gradient(135deg, var(--pin-purple) 0%, var(--pin-purple-deep) 100%);
+  color: var(--pin-gold-soft);
+  /* 衬线 + 宽字距，做出奖章铭文的观感；变量缺失时也有兜底 */
+  font-family: var(--font-serif, "Cormorant Garamond", "Noto Serif SC", "Songti SC", Georgia, serif);
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  /* 外圈金边 + 内圈一道细金环，做出奖章的双层边 */
+  /* box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--pin-gold) 34%, transparent),
+    0 12px 26px -16px rgba(52, 24, 84, 0.95); */
+  z-index: 1;
+}
+
+/* 两侧麦穗：绝对定位，间距不会被 flex 的盒子留白带偏 */
+.book-card__pin::before,
+.book-card__pin::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: var(--pin-sprig-w);
+  height: var(--pin-sprig-h);
+  margin-top: calc(var(--pin-sprig-h) / -2);
+  background-color: var(--pin-gold);
+  -webkit-mask: url("../assets/img/wheat.svg") center / 100% 100% no-repeat;
+  mask: url("../assets/img/wheat.svg") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+.book-card__pin::before {
+  left: var(--pin-sprig-inset);
+}
+
+.book-card__pin::after {
+  right: var(--pin-sprig-inset);
+  transform: scaleX(-1);
+}
+
+[data-theme="dark"] .book-card__pin {
+  --pin-purple: #e056fd;
+  --pin-purple-deep: #8558cc;
+}
+
+.book-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px clamp(18px, 4vw, 22px) 22px;
+  min-width: 0;
+}
+
+.book-card__meta-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.book-card__title {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 2.1vw, 24px);
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book-card__title-en {
+  font-size: clamp(13px, 1vw, 14px);
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.book-card__meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.book-card__meta-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+/* 键名原来 11px + 0.18em 字距太小，看不清，放大并提亮 */
+.book-card__meta-key {
+  flex: none;
+  color: color-mix(in srgb, var(--text-secondary) 94%, transparent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.book-card__meta-value {
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.book-card.is-inactive .book-card__inner {
+  filter: grayscale(0.4);
+  opacity: 0.75;
+}
+
+.book-card.is-inactive:hover .book-card__inner {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.book-card.is-hidden {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .book-card,
+  .book-card__cover-frame,
+  .book-card__cover {
+    transition: none;
+  }
+  .book-card:hover {
+    transform: none;
+  }
+  .book-card:hover .book-card__cover-frame,
+  .book-card:hover .book-card__cover {
+    transform: none;
+  }
+}
+
+/* =========================================================
+   排列方式：一行两个的横向卡片（封面在左 / 信息在右）
+   通过 [data-view="list"] 切换，poster 为默认的竖向卡片
+   ========================================================= */
+
+.shelf-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.shelf-toolbar .filter-bar {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.view-switch {
+  flex: none;
+  margin-left: auto;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-2) 86%, transparent);
+  box-shadow: 0 10px 40px -30px rgba(40, 30, 18, 0.9);
+}
+
+.view-switch__btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: var(--text-tertiary);
+  transition: all var(--dur-fast) var(--ease-spring);
+}
+
+.view-switch__btn:hover {
+  color: var(--text-primary);
+}
+
+.view-switch__btn.is-active {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* ---------- 横向卡片 ---------- */
+
+.shelf[data-view="list"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* 所有行等高：内容长短不一的卡片不会再一高一低 */
+  grid-auto-rows: 1fr;
+  gap: clamp(16px, 2.4vw, 28px);
+}
+
+.shelf[data-view="list"] .book-card__inner {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.shelf[data-view="list"] .book-card__cover-area {
+  flex: 0 0 clamp(148px, 36%, 224px);
+  padding: 0;
+  /* 高度按封面的比例由宽度推出；信息栏更高时会被拉伸，图片跟着填满 */
+  aspect-ratio: 3 / 4.2;
+}
+
+/* 封面铺满整个左栏（圆角交给卡片本体裁切） */
+.shelf[data-view="list"] .book-card__cover-frame:not(.book-card__cover-frame--ghost) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  aspect-ratio: auto;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* 横排不再做 hover 放大 */
+.shelf[data-view="list"] .book-card:hover .book-card__cover-frame,
+.shelf[data-view="list"] .book-card:hover .book-card__cover {
+  transform: none;
+}
+
+.shelf[data-view="list"] .book-card__meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: center;
+  gap: 10px;
+  padding: clamp(16px, 1.8vw, 22px) clamp(16px, 1.8vw, 24px);
+}
+
+.shelf[data-view="list"] .book-card__title {
+  font-size: clamp(20px, 1.7vw, 26px);
+}
+
+/* 无封面卡片的隐形占位框：只占位不显示 */
+.book-card__cover-frame--ghost {
+  visibility: hidden;
+  box-shadow: none;
+}
+
+/* 横排：角标绝对定位在信息区右上角，不参与布局，卡片高度不会被它撑高 */
+.shelf[data-view="list"] .book-card__pin {
+  top: 14px;
+  right: clamp(16px, 1.8vw, 22px);
+  left: auto;
+  /* 只改上下内边距；左右必须由「麦穗宽 + 间隙」推导，否则会压到文字 */
+  padding-block: 4px;
+  font-size: 15px;
+  letter-spacing: 0.1em;
+}
+
+/* 只给书名留避让位（副标题还能用满宽度），长书名不会钻到角标下面 */
+.shelf[data-view="list"] .book-card__title {
+  padding-right: 68px;
+}
+
+/* 窄屏：横向卡片改成一列，避免信息栏被压扁 */
+@media (max-width: 900px) {
+  .shelf[data-view="list"] {
+    /* 必须用 minmax(0,1fr)：1fr 的最小值是 min-content，会把卡片撑破视口 */
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .shelf[data-view="list"] .book-card__cover-area {
+    flex-basis: 132px;
+  }
+  /* 窄屏信息栏只有 ~190px，放不下"角标 + 书名"一行 —— 角标挪到封面上，仍不占布局 */
+  .shelf[data-view="list"] .book-card__pin {
+    top: 10px;
+    left: 10px;
+    right: auto;
+  }
+  .shelf[data-view="list"] .book-card__title {
+    padding-right: 0;
+  }
+  .shelf[data-view="list"] .book-card__meta {
+    gap: 8px;
+  }
+}

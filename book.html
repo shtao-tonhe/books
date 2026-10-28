@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>荐书 · 详情</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Lora:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/book-detail.css">
+</head>
+<body>
+  <div class="page-banner page-banner--detail" data-page-banner>
+    <div class="page-banner__image" data-banner-image></div>
+    <div class="page-banner__overlay"></div>
+    <div class="page-banner__fade"></div>
+  </div>
+  <header class="site-header" data-site-header>
+    <div class="site-header__bar" data-header-bar>
+      <div class="site-header__lead" data-header-lead>
+        <a class="back-link" href="index.html">
+          <span class="back-link__arrow">←</span>
+          <span>返回书架</span>
+        </a>
+      </div>
+      <div class="site-header__trail" data-header-trail>
+        <button class="theme-toggle" data-theme-toggle>
+          <span class="theme-toggle__dot"></span>
+          <span>切换明暗</span>
+        </button>
+      </div>
+    </div>
+  </header>
+  <main data-book>
+    <section class="detail-hero fade-in" data-hero>
+      <div class="detail-hero__cover">
+        <img class="detail-hero__img" data-cover alt="">
+        <div class="detail-hero__glow" data-cover-glow></div>
+      </div>
+      <div class="detail-hero__content">
+        <span class="detail-kicker">书籍基础介绍</span>
+        <h1 class="detail-title" data-title></h1>
+        <p class="detail-title-en" data-title-en></p>
+        <p class="detail-author" data-author></p>
+        <div class="detail-tags" data-tags></div>
+      </div>
+    </section>
+    <div class="divider"></div>
+    <section class="detail-section fade-in">
+      <header class="detail-section__header">
+        <span class="detail-section__subtitle">Introduction</span>
+        <h2 class="detail-section__title">书籍基础介绍</h2>
+      </header>
+      <div class="detail-prose" data-intro></div>
+    </section>
+    <div class="divider"></div>
+    <section class="detail-section fade-in">
+      <header class="detail-section__header">
+        <span class="detail-section__subtitle">AI Summary</span>
+        <h2 class="detail-section__title">AI 汇总</h2>
+      </header>
+      <div class="detail-section" data-sum-text-block>
+        <h3 class="detail-section__title" style="font-size: clamp(20px, 3vw, 28px);">文字</h3>
+        <div class="detail-prose" data-sum-text></div>
+      </div>
+      <div class="detail-section" data-sum-core-block>
+        <h3 class="detail-section__title" style="font-size: clamp(20px, 3vw, 28px);">核心</h3>
+        <ul class="detail-list" data-sum-core></ul>
+      </div>
+      <div class="detail-section" data-sum-graph-block>
+        <h3 class="detail-section__title" style="font-size: clamp(20px, 3vw, 28px);">图谱</h3>
+        <div class="detail-graph" data-sum-graph></div>
+      </div>
+    </section>
+    <div class="divider"></div>
+    <section class="detail-section fade-in" data-quotes-block>
+      <header class="detail-section__header">
+        <span class="detail-section__subtitle">Quotes</span>
+        <h2 class="detail-section__title">金句摘抄</h2>
+      </header>
+      <div class="detail-section" data-quotes></div>
+    </section>
+    <div class="divider"></div>
+    <section class="detail-section fade-in" data-extra-block>
+      <header class="detail-section__header">
+        <span class="detail-section__subtitle">Further Reading</span>
+        <h2 class="detail-section__title">延伸阅读</h2>
+      </header>
+      <div class="detail-links" data-extra></div>
+    </section>
+    <div class="divider"></div>
+    <section class="detail-section fade-in">
+      <header class="detail-section__header">
+        <span class="detail-section__subtitle">Related</span>
+        <h2 class="detail-section__title">相关推荐其他书籍</h2>
+      </header>
+      <div class="detail-related" data-related></div>
+    </section>
+    <div class="divider"></div>
+    <section class="detail-section fade-in">
+      <header class="detail-section__header">
+        <span class="detail-section__subtitle">Source</span>
+        <h2 class="detail-section__title">源文件</h2>
+      </header>
+      <div class="detail-links" data-file></div>
+    </section>
+  </main>
+  <script type="module">
+    import { initTheme } from "./js/utils.js";
+    import { initHeader } from "./js/header.js";
+    import { renderBook } from "./js/book-page.js";
+    initTheme();
+    initHeader();
+    renderBook();
+    const banner = document.querySelector("[data-banner-image]");
+    if (banner) {
+      const num = Math.floor(Math.random() * 9) + 1;
+      banner.style.backgroundImage = `url('assets/img/top/${num}.jpg')`;
+    }
+  </script>
+</body>
+</html>

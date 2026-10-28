@@ -1,0 +1,60 @@
+:root {
+  /* Base */
+  --bg: #f8f6f1;
+  --bg-elev: #fbf9f5;
+  --surface: rgba(255, 255, 255, 0.6);
+  --surface-2: rgba(255, 255, 255, 0.8);
+  --text-primary: #1f1b16;
+  --text-secondary: #5f564a;
+  --text-tertiary: #7f7566;
+  --border: rgba(120, 100, 70, 0.18);
+  --border-subtle: rgba(120, 100, 70, 0.12);
+  --accent: #b9a07e;
+  --accent-strong: #8f7a55;
+
+  /* Glow from cover */
+  --glow-1: rgba(185, 160, 126, 0.16);
+  --glow-2: rgba(185, 160, 126, 0.08);
+
+  /* Effects */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --blur: 12px;
+  --shadow-soft: 0 20px 60px -30px rgba(40, 30, 18, 0.9);
+  --shadow-hover: 0 30px 80px -40px rgba(40, 30, 18, 1);
+  --shadow-card: 0 40px 90px -60px rgba(40, 30, 18, 0.95);
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 220ms;
+  --dur-med: 320ms;
+  --dur-slow: 420ms;
+  /* 卡片悬停描边时长（JS 从该变量读取，改这一处即可） */
+  --dur-trace: 3000ms;
+
+  /* Typography */
+  /* --font-serif: "Cormorant Garamond", "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-serif-body: "Lora", "Cormorant Garamond", "Noto Serif SC", serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; */
+}
+
+[data-theme="dark"] {
+  --bg: #12100c;
+  --bg-elev: #16130d;
+  --surface: rgba(28, 24, 18, 0.7);
+  --surface-2: rgba(34, 29, 22, 0.86);
+  --text-primary: #f5f1ec;
+  --text-secondary: #c9c0b3;
+  --text-tertiary: #d4d3d1;
+  --border: rgba(198, 178, 150, 0.24);
+  --border-subtle: rgba(198, 178, 150, 0.16);
+  --accent: #d9c3a3;
+  --accent-strong: #f0d9b8;
+  --glow-1: rgba(217, 195, 163, 0.18);
+  --glow-2: rgba(217, 195, 163, 0.1);
+  --shadow-soft: 0 30px 70px -40px rgba(0, 0, 0, 0.95);
+  --shadow-hover: 0 40px 90px -40px rgba(0, 0, 0, 1);
+  --shadow-card: 0 50px 110px -60px rgba(0, 0, 0, 1);
+}

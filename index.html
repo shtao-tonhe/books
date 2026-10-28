@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>荐书</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Lora:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/shelf.css">
+  <link rel="stylesheet" href="css/shelf-spoiler.css">
+</head>
+<body>
+  <div class="page-banner page-banner--home" data-page-banner>
+    <div class="page-banner__image" data-banner-image></div>
+    <div class="page-banner__overlay"></div>
+    <div class="page-banner__fade"></div>
+  </div>
+  <header class="site-header" data-site-header>
+    <div class="site-header__bar" data-header-bar>
+      <div class="site-header__lead" data-header-lead></div>
+      <div class="site-header__search" data-search-slot>
+        <form class="search" role="search" data-search-form>
+          <button class="search__toggle" type="button" data-search-toggle
+                  aria-label="搜索书籍" aria-expanded="false" aria-controls="site-search">
+            <svg class="search__icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="6.9" cy="6.9" r="4.7" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <input class="search__input" id="site-search" name="q" type="search"
+                 placeholder="搜索书名 / 作者 / 标签" autocomplete="off"
+                 aria-label="搜索书籍" data-search-input>
+          <button class="search__clear" type="button" data-search-clear aria-label="清除搜索" hidden>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M9 3 3 9M3 3l6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+      <div class="site-header__trail" data-header-trail>
+        <button class="theme-toggle" data-theme-toggle>
+          <span class="theme-toggle__dot"></span>
+          <span>切换明暗</span>
+        </button>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="fade-in">
+      <div class="shelf-toolbar">
+        <div class="filter-bar" data-filter-bar></div>
+        <div class="view-switch" role="group" aria-label="排列方式">
+          <button class="view-switch__btn" type="button" data-view-btn="list" aria-label="一行两个：封面在左" aria-pressed="false">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <rect x="1.5" y="2.5" width="11" height="9" rx="1.6" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M5.6 2.5v9" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </button>
+          <button class="view-switch__btn" type="button" data-view-btn="poster" aria-label="竖向封面卡片" aria-pressed="false">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <rect x="1.5" y="1.5" width="4.4" height="11" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+              <rect x="8.1" y="1.5" width="4.4" height="11" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+    <section class="shelf-wrap">
+      <div class="shelf" data-shelf></div>
+      <p class="shelf-empty" data-shelf-empty hidden>没有找到相关书籍，换个关键词或标签试试。</p>
+    </section>
+  </main>
+  <script type="module">
+    import { initTheme } from "./js/utils.js";
+    import { initHeader } from "./js/header.js";
+    import { renderShelf } from "./js/shelf.js";
+    initTheme();
+    initHeader();
+    renderShelf();
+    const banner = document.querySelector("[data-banner-image]");
+    if (banner) {
+      banner.style.backgroundImage = "url('assets/img/top/home.jpg')";
+    }
+  </script>
+</body>
+</html>

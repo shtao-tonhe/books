@@ -1,0 +1,337 @@
+{
+  "site": {
+    "title": "荐书",
+    "basePath": "/books/"
+  },
+  "books": [
+    {
+      "id": "thinking-fast-and-slow",
+      "title": "思考，快与慢",
+      "titleEn": "Thinking, Fast and Slow",
+      "author": "丹尼尔·卡尼曼",
+      "cover": "assets/covers/001.jpg",
+      "coverPalette": {
+        "bgTop": "rgba(92, 76, 56, 0.9)",
+        "bgBottom": "rgba(58, 48, 36, 0.95)",
+        "accent": "rgba(214, 190, 150, 0.9)"
+      },
+      "meta": {
+        "publisher": "中信出版社",
+        "publishYear": "2025-4",
+        "originalTitle": "Thinking, Fast and Slow",
+        "translator": "江生、于华"
+      },
+      "tags": [
+        "认知心理学",
+        "决策",
+        "行为经济学"
+      ],
+      "type": [
+        "已读"
+      ],
+      "status": "read",
+      "pinned": true,
+      "pinText": "推荐",
+      "sort": 1,
+      "rating": 9.4,
+      "intro": "系统1与系统2：快思考与慢思考，直觉与理性之间的博弈。",
+      "description": "诺贝尔经济学奖得主丹尼尔·卡尼曼的经典作品，清晰总结了一生的研究成果。书中提出人类思考和决策由两种系统驱动：系统1依赖直觉、情感、记忆做出快速判断；系统2则更慢、更深思熟虑、更具逻辑。\n\n通过生动的对话和实验，卡尼曼揭示了快思考和直觉印象对人类思想和选择的普遍影响，展示了我们什么时候可以信任直觉，什么时候不可以，以及如何利用慢思考的优势做出更好的决策。\n\n他的研究挑战了传统经济学中的「理性人」假定，提出了著名的「前景理论」，开创了行为经济学领域。",
+      "aiSummary": {
+        "enabled": true,
+        "text": "人类并非理性经济人，而是「认知吝啬鬼」。大多数时候我们用启发式（heuristic）省力思考，在不确定性面前极易产生系统性偏差。要想做出更好的决策，关键不是压制直觉，而是学会在关键场景中有意识地激活系统2。",
+        "core": [
+          "系统1（快）与系统2（慢）",
+          "启发式与偏差（可得性、代表性、锚定）",
+          "前景理论与损失厌恶",
+          "框架效应与决策偏好",
+          "过度自信、规划谬误与乐观偏差"
+        ],
+        "graph": {
+          "type": "image",
+          "src": "assets/img/thinking-fast-and-slow-mindmap.png",
+          "alt": "思考，快与慢 核心图谱",
+          "caption": "手动整理：双系统视角下的认知偏差地图"
+        }
+      },
+      "quotes": [
+        {
+          "text": "人类思考有两种方式：一种是快速、自动、无意识的；另一种是缓慢、费力、有意识的。",
+          "note": ""
+        },
+        {
+          "text": "我们对损失的恐惧远比对同等收益的渴望更强烈。",
+          "note": "前景理论的核心"
+        },
+        {
+          "text": "直觉判断的质量取决于过去的经验和练习，但并非所有领域都能通过经验培养可靠的直觉。",
+          "note": ""
+        }
+      ],
+      "files": [
+        {
+          "name": "《思考，快与慢》.epub",
+          "path": "files/001.epub"
+        }
+      ],
+      "extraReading": [
+        {
+          "title": "《噪声：人类判断的缺陷》",
+          "url": "https://book.douban.com/subject/35356347/",
+          "note": "卡尼曼晚年新作，从「偏差」到「噪声」"
+        },
+        {
+          "title": "《助推》（Nudge）",
+          "url": "https://book.douban.com/subject/3266609/",
+          "note": "行为经济学应用，如何用「助推」改善决策"
+        }
+      ],
+      "related": []
+    },
+    {
+      "id": "thinking-in-bets",
+      "title": "下注思考",
+      "titleEn": "Thinking in Bets: Making Smarter Decisions When You Don't Have All the Facts",
+      "author": "安妮·杜克",
+      "cover": null,
+      "coverPalette": {
+        "bgTop": "rgba(84, 80, 98, 0.92)",
+        "bgBottom": "rgba(52, 50, 66, 0.96)",
+        "accent": "rgba(204, 200, 232, 0.9)"
+      },
+      "meta": {
+        "publisher": "中信出版社",
+        "publishYear": "待阅读",
+        "originalTitle": "Thinking in Bets",
+        "translator": "暂无"
+      },
+      "tags": [
+        "决策",
+        "概率思维",
+        "扑克"
+      ],
+      "type": [
+        "待读"
+      ],
+      "status": "toread",
+      "pinned": false,
+      "pinText": "强烈推荐",
+      "sort": 99,
+      "rating": null,
+      "intro": "用扑克的视角思考不确定性下的决策：我们不是要预测对错，而是要下注得更合理。",
+      "description": "世界级扑克冠军安妮·杜克用扑克生涯的经验告诉我们，在信息不全的世界里，做决策的关键不是「正确率」，而是「决策质量」。\n\n学会区分运气和技能，用概率思考结果，才能在长期里做出更好的判断。",
+      "aiSummary": {
+        "enabled": true,
+        "text": "把人生当成一场持续下注的游戏。好决策不等于好结果，坏决策也不等于坏结果。",
+        "core": [
+          "结果导向 vs 决策导向",
+          "信念更新与概率思维",
+          "承认不确定性",
+          "减少自我辩护",
+          "用「我现在认为有多大概率」来表述判断"
+        ],
+        "graph": {
+          "type": "image",
+          "src": "",
+          "alt": "",
+          "caption": ""
+        }
+      },
+      "quotes": [],
+      "files": [],
+      "extraReading": [],
+      "related": []
+    },
+    {
+      "id": "sapiens",
+      "title": "人类简史",
+      "titleEn": "Sapiens: A Brief History of Humankind",
+      "author": "尤瓦尔·赫拉利",
+      "cover": "assets/covers/003.svg",
+      "coverPalette": {
+        "bgTop": "rgba(156, 138, 114, 0.92)",
+        "bgBottom": "rgba(93, 81, 66, 0.96)",
+        "accent": "rgba(240, 232, 218, 0.9)"
+      },
+      "meta": {
+        "publisher": "中信出版社",
+        "publishYear": "2017-2",
+        "originalTitle": "Sapiens: A Brief History of Humankind",
+        "translator": "林俊宏"
+      },
+      "tags": [
+        "历史",
+        "人类学"
+      ],
+      "type": [
+        "已读"
+      ],
+      "status": "read",
+      "pinned": false,
+      "pinText": "推荐",
+      "sort": 2,
+      "rating": 9.1,
+      "intro": "从认知革命、农业革命到科学革命，重新讲一遍人类这一物种的来路。",
+      "description": "十万年前，地球上至少有六种人类，为什么最后只剩下我们？\n\n赫拉利用「认知革命、农业革命、科学革命」三条线索，把人类从普通动物一路讲到主宰地球，并追问：我们真的因此更幸福了吗？"
+    },
+    {
+      "id": "peak",
+      "title": "刻意练习",
+      "titleEn": "Peak: Secrets from the New Science of Expertise",
+      "author": "安德斯·艾利克森",
+      "cover": null,
+      "coverPalette": {
+        "bgTop": "rgba(74, 96, 104, 0.92)",
+        "bgBottom": "rgba(42, 58, 64, 0.96)",
+        "accent": "rgba(206, 226, 232, 0.9)"
+      },
+      "meta": {
+        "publisher": "机械工业出版社",
+        "publishYear": "2016-11",
+        "originalTitle": "Peak: Secrets from the New Science of Expertise",
+        "translator": "王正林"
+      },
+      "tags": [
+        "学习方法",
+        "认知科学"
+      ],
+      "type": [
+        "待读"
+      ],
+      "status": "toread",
+      "pinned": false,
+      "pinText": "推荐",
+      "sort": 3,
+      "rating": 8.2,
+      "intro": "所谓天才，多半是正确练法的结果，而不是天赋的结果。",
+      "description": "「一万小时定律」被简化甚至误读了。\n\n真正有效的不是时间堆积，而是有目标、有反馈、走出舒适区的刻意练习。"
+    },
+    {
+      "id": "courage",
+      "title": "被讨厌的勇气",
+      "titleEn": "The Courage to Be Disliked",
+      "author": "岸见一郎、古贺史健",
+      "cover": "assets/covers/004.svg",
+      "coverPalette": {
+        "bgTop": "rgba(127, 143, 160, 0.92)",
+        "bgBottom": "rgba(63, 76, 88, 0.96)",
+        "accent": "rgba(232, 240, 248, 0.9)"
+      },
+      "meta": {
+        "publisher": "机械工业出版社",
+        "publishYear": "2015-5",
+        "originalTitle": "嫌われる勇気",
+        "translator": "渠海霞"
+      },
+      "tags": [
+        "心理学",
+        "自我成长"
+      ],
+      "type": [
+        "已读"
+      ],
+      "status": "read",
+      "pinned": false,
+      "pinText": "推荐",
+      "sort": 4,
+      "rating": 8.6,
+      "intro": "用阿德勒心理学拆掉「原因论」，换成「目的论」的活法。",
+      "description": "一个青年与哲人的五夜对话，把「课题分离」「共同体感觉」「被讨厌的勇气」讲成了可操作的方法。\n\n它不承诺让你更成功，只承诺让你更自由。"
+    },
+    {
+      "id": "naval",
+      "title": "纳瓦尔宝典",
+      "titleEn": "The Almanack of Naval Ravikant: A Guide to Wealth and Happiness",
+      "author": "埃里克·乔根森",
+      "cover": null,
+      "coverPalette": {
+        "bgTop": "rgba(120, 104, 74, 0.92)",
+        "bgBottom": "rgba(62, 54, 38, 0.96)",
+        "accent": "rgba(238, 226, 198, 0.9)"
+      },
+      "meta": {
+        "publisher": "中信出版社",
+        "publishYear": "2022-8",
+        "originalTitle": "The Almanack of Naval Ravikant",
+        "translator": "赵灿"
+      },
+      "tags": [
+        "财富",
+        "幸福"
+      ],
+      "type": [
+        "待读"
+      ],
+      "status": "toread",
+      "pinned": false,
+      "pinText": "推荐",
+      "sort": 5,
+      "rating": 8.4,
+      "intro": "财富是睡后仍在增长的资产，幸福是欲望的减法。",
+      "description": "纳瓦尔关于「如何不靠运气致富」与「如何获得平静」的十年推文精选。\n\n核心只有两条：把自己产品化，用专长和杠杆换自由；把欲望减到最少，用当下换平静。"
+    },
+    {
+      "id": "inside",
+      "title": "置身事内",
+      "titleEn": "In the Know: Chinese Government and Economic Development",
+      "author": "兰小欢",
+      "cover": "assets/covers/005.svg",
+      "coverPalette": {
+        "bgTop": "rgba(141, 90, 74, 0.92)",
+        "bgBottom": "rgba(78, 47, 39, 0.96)",
+        "accent": "rgba(244, 224, 216, 0.9)"
+      },
+      "meta": {
+        "publisher": "上海人民出版社",
+        "publishYear": "2021-8",
+        "originalTitle": "置身事内：中国政府与经济发展",
+        "translator": "—"
+      },
+      "tags": [
+        "经济",
+        "中国"
+      ],
+      "type": [
+        "已读"
+      ],
+      "status": "read",
+      "pinned": true,
+      "pinText": "值得一读",
+      "sort": 6,
+      "rating": 9,
+      "intro": "把地方政府当成一个「经济主体」来理解，很多现象就顺了。",
+      "description": "为什么土地财政、地方债、招商引资会塑造出今天的城市面貌？\n\n兰小欢用大量案例把财税、投融资、产业政策串成一条线，读完再去看新闻，很多事就有了坐标。"
+    },
+    {
+      "id": "greatness",
+      "title": "为什么伟大不能被计划",
+      "titleEn": "Why Greatness Cannot Be Planned: The Myth of the Objective",
+      "author": "肯尼斯·斯坦利、乔尔·雷曼",
+      "cover": "assets/covers/006.svg",
+      "coverPalette": {
+        "bgTop": "rgba(127, 134, 104, 0.92)",
+        "bgBottom": "rgba(67, 74, 53, 0.96)",
+        "accent": "rgba(236, 240, 224, 0.9)"
+      },
+      "meta": {
+        "publisher": "中信出版社",
+        "publishYear": "2023-6",
+        "originalTitle": "Why Greatness Cannot Be Planned",
+        "translator": "李楠"
+      },
+      "tags": [
+        "创新",
+        "思维"
+      ],
+      "type": [
+        "待读"
+      ],
+      "status": "toread",
+      "pinned": false,
+      "pinText": "推荐",
+      "sort": 7,
+      "rating": 8.3,
+      "intro": "",
+      "description": ""
+    }
+  ]
+}

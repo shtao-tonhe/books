@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 840" width="600" height="840" role="img">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#7f8668"/>
+      <stop offset="1" stop-color="#434a35"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="840" fill="url(#bg)"/>
+  <circle cx="470" cy="150" r="210" fill="#ffffff" fill-opacity="0.10"/>
+  <circle cx="120" cy="700" r="170" fill="#ffffff" fill-opacity="0.08"/>
+  <rect x="30" y="30" width="540" height="780" fill="none" stroke="#f8f9f2" stroke-opacity="0.22" stroke-width="1.6"/>
+  <path d="M90 470 C 210 380, 390 560, 510 430" fill="none" stroke="#f8f9f2" stroke-opacity="0.18" stroke-width="2"/>
+  <text x="300" y="180" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="26" letter-spacing="8" fill="#f8f9f2" fill-opacity="0.72">WHY GREATNESS CANNOT BE PLANNED</text>
+  <text x="300" y="300" text-anchor="middle" font-family="'Noto Serif SC','Songti SC',serif" font-size="82" font-weight="600" letter-spacing="6" fill="#f8f9f2">为什么伟大</text>
+  <text x="300" y="386" text-anchor="middle" font-family="'Noto Serif SC','Songti SC',serif" font-size="82" font-weight="600" letter-spacing="6" fill="#f8f9f2">不能被计划</text>
+  <text x="300" y="742" text-anchor="middle" font-family="'Noto Serif SC','Songti SC',serif" font-size="28" letter-spacing="10" fill="#f8f9f2" fill-opacity="0.86">肯尼斯 · 斯坦利 / 乔尔 · 雷曼</text>
+  <text x="300" y="782" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-size="17" letter-spacing="10" fill="#f8f9f2" fill-opacity="0.42">JIANSHU</text>
+</svg>
