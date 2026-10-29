@@ -27,99 +27,67 @@
   max-width: min(100%, 1000px);
 }
 
-/* 作者照片：横向排列，多张默认叠在一起，hover 微微散开，点击整排展开 */
+/* 作者照片：横向叠放；hover 时脱离文档流竖着展开（容器尺寸固定，占位不塌） */
 .detail-hero__photos {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-self: end;
-  width: clamp(200px, 20vw, 320px);
-  padding: 6px 0 8px;
+  --photo-w: clamp(120px, 12vw, 164px);
+  --photo-overlap: 0.34;
+
   position: relative;
+  justify-self: end;
+  align-self: center;
+  z-index: 1;
+  width: calc(var(--photo-w) * (1 + (var(--photo-count, 1) - 1) * var(--photo-overlap)));
+  height: calc(var(--photo-w) * 4 / 3);
 }
 
 .detail-hero__photos[hidden] {
   display: none;
 }
 
+/* 展开时浮在简介上层 */
+.detail-hero__photos:hover {
+  z-index: 4;
+}
+
 .detail-hero__photo {
-  flex: none;
-  width: clamp(120px, 12vw, 164px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--photo-w);
   aspect-ratio: 3 / 4;
   object-fit: cover;
   border-radius: 14px;
   border: 1px solid var(--border-subtle);
   background: var(--surface-2);
   box-shadow: 0 30px 60px -40px rgba(40, 30, 18, 0.95);
+  transform: translateX(calc(var(--i, 0) * 34%)) rotate(var(--tilt, 0deg));
   transition:
-    width var(--dur-med) var(--ease-spring),
-    margin var(--dur-med) var(--ease-spring),
-    transform var(--dur-med) var(--ease-spring);
+    transform var(--dur-slow) var(--ease-spring),
+    box-shadow var(--dur-slow) var(--ease-spring);
 }
 
-.detail-hero__photo + .detail-hero__photo {
-  margin-left: -58%;
+.detail-hero__photo:nth-child(1) {
+  --tilt: -3deg;
 }
 
-/* hover：略微散开，露出后面那几张 */
-.detail-hero__photos--expandable:hover .detail-hero__photo + .detail-hero__photo {
-  margin-left: -26%;
+.detail-hero__photo:nth-child(2) {
+  --tilt: 2.5deg;
 }
 
-/* 点击展开：均分容器宽度，全部露出且不会撑破布局 */
-.detail-hero__photos--expandable.is-expanded .detail-hero__photo {
-  width: calc((100% - (8px * (var(--photo-count, 1) - 1))) / var(--photo-count, 1));
-  margin-left: 8px;
-  transform: none;
+.detail-hero__photo:nth-child(3) {
+  --tilt: -1.5deg;
 }
 
-.detail-hero__photos--expandable.is-expanded .detail-hero__photo:first-child {
-  margin-left: 0;
+.detail-hero__photo:nth-child(n + 4) {
+  --tilt: 1.5deg;
 }
 
-.detail-hero__photos--expandable {
-  cursor: zoom-in;
-}
-
-.detail-hero__photos--expandable.is-expanded {
-  cursor: zoom-out;
-}
-
-.detail-hero__photos--expandable::after {
-  content: "展开";
-  position: absolute;
-  right: 0;
-  bottom: -10px;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  color: var(--text-tertiary);
-  opacity: 0;
-  transition: opacity var(--dur-fast) var(--ease-spring);
-  pointer-events: none;
-}
-
-.detail-hero__photos--expandable:hover::after {
-  opacity: 1;
-}
-
-.detail-hero__photos--expandable.is-expanded::after {
-  content: "收起";
-}
-
-.detail-hero__photos > :nth-child(1) {
-  transform: rotate(-3deg);
-}
-
-.detail-hero__photos > :nth-child(2) {
-  transform: rotate(2.5deg) translateY(-6px);
-}
-
-.detail-hero__photos > :nth-child(3) {
-  transform: rotate(-1.5deg) translateY(6px);
-}
-
-.detail-hero__photos > :nth-child(n + 4) {
-  transform: rotate(1.5deg) translateY(-4px);
+/* hover：竖向扇形展开，绝对定位所以不影响布局 */
+.detail-hero__photos:hover .detail-hero__photo {
+  transform: translateX(calc(var(--i, 0) * 8%))
+    translateY(calc((var(--i, 0) - var(--mid, 0)) * 40%))
+    rotate(0deg);
+  box-shadow: 0 40px 70px -40px rgba(40, 30, 18, 0.85);
 }
 
 /* 作者简介：放在基础信息下面，没有就整块隐藏 */
