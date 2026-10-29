@@ -1,9 +1,32 @@
 import { loadBooks } from "./data-loader.js";
 import { applyCoverGlow } from "./color-extract.js";
+import { initSpoiler } from "./spoiler-particles.js";
+import { mountNotes } from "./markdown.js";
+
+/* 参数优先读 query，其次读 hash：
+   clean-url 类服务器会把 /book.html?id=1 301 成 /book 并丢掉 query，
+   但 hash 不会丢，所以链接里把状态写在 hash 上 */
+function readParam(key) {
+  const fromQuery = new URLSearchParams(location.search);
+  if (fromQuery.get(key)) return fromQuery.get(key);
+  return new URLSearchParams(location.hash.replace(/^#/, "")).get(key);
+}
 
 function getId() {
-  const params = new URLSearchParams(location.search);
-  return params.get("id");
+  return readParam("id");
+}
+
+/* 从书架点进来时，卡片链接里带了书架的状态（tag / q / view / focus），
+   返回书架就原样回去，筛选、搜索词、滚动位置都不丢 */
+function getShelfReturn() {
+  const from = readParam("from");
+  if (!from) return "index.html";
+  return `index.html#${from}`;
+}
+
+function applyBackLink() {
+  const back = document.querySelector(".back-link");
+  if (back) back.href = getShelfReturn();
 }
 
 function el(tag, className, text) {
@@ -11,6 +34,85 @@ function el(tag, className, text) {
   if (className) node.className = className;
   if (text !== undefined && text !== null) node.textContent = text;
   return node;
+}
+
+/* 空状态：id 缺失 / 查不到这本书 */
+function showMissing(root, message) {
+  if (!root) return;
+  root.innerHTML = "";
+  const wrap = el("div", "detail-missing");
+  wrap.appendChild(el("p", "detail-missing__title", message));
+  wrap.appendChild(el("p", "detail-missing__hint", "链接可能不完整，或者这本书还没上架。"));
+  const link = el("a", "detail-missing__link", "返回书架");
+  link.href = getShelfReturn();
+  wrap.appendChild(link);
+  root.appendChild(wrap);
+  document.title = "荐书 · 未找到";
+}
+
+/* 无封面（或封面加载失败）时，用和书架一致的星尘占位顶上 */
+function mountCoverFallback(hero, cover, glow, book) {
+  if (!hero || hero.dataset.fallback === "1") return;
+  hero.dataset.fallback = "1";
+  if (cover) cover.style.display = "none";
+  if (glow) glow.style.display = "none";
+
+  // 渐变直接刷在封面框上，避免多包一层导致高度算不出来
+  const palette = book.coverPalette || {};
+  const top = palette.bgTop || "var(--glow-1)";
+  const bottom = palette.bgBottom || "var(--bg-elev)";
+  hero.style.background = `radial-gradient(120% 120% at 50% 0%, ${top} 0%, ${bottom} 100%)`;
+
+  hero.appendChild(el("div", "book-card__spoiler-blur"));
+  const canvas = el("canvas", "book-card__spoiler-canvas");
+  hero.appendChild(canvas);
+  // 等一帧再初始化：刚 append 时尺寸还没算出来
+  requestAnimationFrame(() => initSpoiler(canvas));
+}
+
+/* 详情页顶栏：书名滚出视口后，在顶栏中间补一个书名 */
+function mountHeaderTitle(title) {
+  const label = document.querySelector("[data-header-title]");
+  const header = document.querySelector("[data-site-header]");
+  const heroTitle = document.querySelector("[data-title]");
+  if (!label || !header || !heroTitle || !title) return;
+  label.textContent = title;
+
+  const headerHeight = Math.round(header.getBoundingClientRect().height) || 80;
+  const apply = (visible) => header.classList.toggle("is-title-visible", visible);
+
+  if (typeof IntersectionObserver !== "function") return;
+  const io = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[entries.length - 1];
+      // 顶部留出顶栏高度：书名被顶栏挡住就算"看不见了"
+      const scrolledPast = entry.boundingClientRect.top < 0;
+      apply(!entry.isIntersecting && scrolledPast);
+    },
+    { rootMargin: `-${headerHeight}px 0px 0px 0px`, threshold: 0 }
+  );
+  io.observe(heroTitle);
+}
+
+const DOWNLOAD_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>';
+
+/* 源文件：放到封面右下角，有文件才出现 */
+function mountDownloads(book) {
+  const wrap = document.querySelector("[data-cover-downloads]");
+  if (!wrap) return;
+  const files = Array.isArray(book.files) ? book.files.filter((f) => f && f.path) : [];
+  wrap.replaceChildren();
+  wrap.hidden = files.length === 0;
+  files.forEach((file) => {
+    const link = el("a", "detail-cover__download");
+    link.href = file.path;
+    if (file.name) link.download = file.name;
+    const label = `下载 ${file.name || "源文件"}`;
+    link.title = label;
+    link.setAttribute("aria-label", label);
+    link.innerHTML = DOWNLOAD_ICON;
+    wrap.appendChild(link);
+  });
 }
 
 function renderRelated(container, books, ids) {
@@ -23,10 +125,11 @@ function renderRelated(container, books, ids) {
   }
   ids.forEach((id) => {
     const book = books.find((b) => b.id === id);
-    if (!book) return;
+    // 没有封面的书在相关推荐里没法渲染封面，直接跳过，避免破图
+    if (!book || !book.cover) return;
     const card = document.createElement("a");
     card.className = "book-card fade-in";
-    card.href = `book.html?id=${book.id}`;
+    card.href = `book.html?id=${encodeURIComponent(book.id)}`;
     const palette = book.coverPalette || {};
     if (palette.bgTop) card.style.setProperty("--book-card-accent", palette.bgTop);
     if (palette.bgBottom) card.style.setProperty("--book-card-bg-bottom", palette.bgBottom);
@@ -65,23 +168,38 @@ function renderRelated(container, books, ids) {
 export async function renderBook() {
   const id = getId();
   const root = document.querySelector("[data-book]");
-  if (!root || !id) return;
+  if (!root) return;
+  applyBackLink();
+  if (!id) {
+    showMissing(root, "没有指定要看的书");
+    return;
+  }
   try {
     const data = await loadBooks();
     const book = data.books.find((b) => b.id === id);
     if (!book) {
-      root.innerHTML = "<p style='color: var(--text-tertiary)'>未找到这本书，<a href='index.html'>返回书架</a></p>";
+      showMissing(root, "没有找到这本书");
       return;
     }
+    // 先把标题定下来，后面就算某块渲染失败，浏览器标签页也是对的
+    document.title = `荐书 · ${book.title || ""}`;
 
     // Hero
     const hero = document.querySelector("[data-hero]");
+    const coverWrap = hero.querySelector(".detail-hero__cover");
     const cover = hero.querySelector("[data-cover]");
     const glow = hero.querySelector("[data-cover-glow]");
-    if (cover) {
-      cover.src = book.cover;
+    if (cover && book.cover) {
       cover.alt = book.title || "";
-      applyCoverGlow(cover, glow);
+      cover.addEventListener("error", () => mountCoverFallback(coverWrap, cover, glow, book), { once: true });
+      cover.src = book.cover;
+      try {
+        applyCoverGlow(cover, glow);
+      } catch (err) {
+        console.warn("cover glow failed", err);
+      }
+    } else {
+      mountCoverFallback(coverWrap, cover, glow, book);
     }
     const titleEl = hero.querySelector("[data-title]");
     const titleEnEl = hero.querySelector("[data-title-en]");
@@ -89,6 +207,7 @@ export async function renderBook() {
     if (titleEl) titleEl.textContent = book.title || "";
     if (titleEnEl) titleEnEl.textContent = book.titleEn || "";
     if (authorEl) authorEl.textContent = book.author || "";
+    mountHeaderTitle(book.title || "");
     const tags = hero.querySelector("[data-tags]");
     if (tags) {
       tags.innerHTML = "";
@@ -98,8 +217,9 @@ export async function renderBook() {
       });
     }
 
-    // Intro
+    // Intro：没有正文时给一句占位，别留一个空标题，也别把整页掏空
     const intro = document.querySelector("[data-intro]");
+    const introBlock = document.querySelector("[data-intro-block]");
     if (intro) {
       intro.innerHTML = "";
       const desc = book.description || "";
@@ -108,10 +228,19 @@ export async function renderBook() {
         if (!trimmed) return;
         intro.appendChild(el("p", null, trimmed));
       });
+      if (!intro.children.length) {
+        intro.appendChild(el("p", "is-placeholder", "这本书还没有写简介。"));
+      }
+      if (introBlock) introBlock.style.display = "";
     }
 
-    // AI Summary
+    // AI Summary（文字 / 核心 / 图谱 都没有时，整块隐藏）
     const summary = book.aiSummary || {};
+    const summaryBlock = document.querySelector("[data-summary-block]");
+    const hasSummary =
+      Boolean(summary.text) ||
+      (Array.isArray(summary.core) && summary.core.length > 0) ||
+      Boolean(summary.graph && summary.graph.src);
     const sumTextBlock = document.querySelector("[data-sum-text-block]");
     const sumText = document.querySelector("[data-sum-text]");
     if (sumText && sumTextBlock) {
@@ -161,6 +290,8 @@ export async function renderBook() {
       }
     }
 
+    if (summaryBlock) summaryBlock.style.display = hasSummary ? "" : "none";
+
     // Quotes
     const quotesBlock = document.querySelector("[data-quotes-block]");
     const quotes = document.querySelector("[data-quotes]");
@@ -179,6 +310,17 @@ export async function renderBook() {
       } else {
         quotesBlock.style.display = "none";
       }
+    }
+
+    mountDownloads(book);
+
+    // 读者笔记：默认约定 data/notes/<id>.md，也可以在 books.json 里用 notes 指定别的路径
+    const notesBlock = document.querySelector("[data-notes-block]");
+    const notesEl = document.querySelector("[data-notes]");
+    if (notesBlock && notesEl) {
+      const notePath = book.notes === false ? "" : book.notes || `data/notes/${id}.md`;
+      const hasNotes = notePath ? await mountNotes(notesEl, notePath) : false;
+      notesBlock.hidden = !hasNotes;
     }
 
     // Extra reading
@@ -210,28 +352,8 @@ export async function renderBook() {
       relatedSection.style.display = "none";
     }
 
-    // Files
-    const fileWrap = document.querySelector("[data-file]");
-    if (fileWrap) {
-      fileWrap.innerHTML = "";
-      if (Array.isArray(book.files) && book.files.length) {
-        book.files.forEach((f) => {
-          if (!f || !f.path) return;
-          const a = el("a", "detail-file");
-          a.href = f.path;
-          if (f.name) a.download = f.name;
-          a.innerHTML = `<span>${f.name || "下载原书"}</span><span>↓</span>`;
-          fileWrap.appendChild(a);
-        });
-      } else {
-        const miss = el("span", "detail-file is-missing", "源文件：暂缺");
-        fileWrap.appendChild(miss);
-      }
-    }
-
-    document.title = `荐书 · ${book.title || ""}`;
   } catch (err) {
     console.error(err);
-    root.innerHTML = "<p style='color: var(--text-tertiary)'>加载失败，请检查 data/books.json 格式。</p>";
+    showMissing(root, "这本书加载失败了");
   }
 }

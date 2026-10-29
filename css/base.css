@@ -205,6 +205,31 @@ ul, ol {
   justify-content: flex-end;
 }
 
+/* 详情页：书名滚出视口后，在顶栏中间补一个书名（和书架搜索框同一个中列） */
+.site-header__title {
+  grid-column: 2;
+  justify-self: center;
+  max-width: min(46vw, 460px);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: clamp(14px, 1.4vw, 17px);
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  opacity: 0;
+  translate: 0 6px;
+  pointer-events: none;
+  transition:
+    opacity var(--dur-med) var(--ease-out-expo),
+    translate var(--dur-med) var(--ease-out-expo);
+}
+
+.site-header.is-title-visible .site-header__title {
+  opacity: 1;
+  translate: 0 0;
+}
+
 .site-header__trail {
   grid-column: 3;
   justify-self: end;

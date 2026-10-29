@@ -9,6 +9,7 @@
       "title": "思考，快与慢",
       "titleEn": "Thinking, Fast and Slow",
       "author": "丹尼尔·卡尼曼",
+      "author_photo": "assets/covers/001_author.png",
       "cover": "assets/covers/001.jpg",
       "coverPalette": {
         "bgTop": "rgba(92, 76, 56, 0.9)",
@@ -178,7 +179,8 @@
       "title": "刻意练习",
       "titleEn": "Peak: Secrets from the New Science of Expertise",
       "author": "安德斯·艾利克森",
-      "cover": null,
+      "author_photo": "assets/covers/002_author.jpg",
+      "cover": "assets/covers/002.jpg",
       "coverPalette": {
         "bgTop": "rgba(74, 96, 104, 0.92)",
         "bgBottom": "rgba(42, 58, 64, 0.96)",

@@ -387,6 +387,50 @@ const shelfState = { tag: "全部", query: "" };
 let shelfCards = [];
 let shelfEmpty = null;
 
+const SHELF_VIEW_DEFAULT = "list";
+
+/* 有些静态服务器会把 /book.html?id=1 301 到 /book（.html 被吃掉，query 也一起丢），
+   但 hash 不会丢，所以状态统一写进 hash，读取时 query / hash 都认 */
+function readShelfParams() {
+  const fromQuery = new URLSearchParams(location.search);
+  const fromHash = new URLSearchParams(location.hash.replace(/^#/, ""));
+  return (key) => fromQuery.get(key) ?? fromHash.get(key);
+}
+
+/* 把当前书架状态序列化成 query string（tag / q / view，可选追加 focus=某本书） */
+function shelfQueryString(extra = {}) {
+  const params = new URLSearchParams();
+  if (shelfState.tag && shelfState.tag !== "全部") params.set("tag", shelfState.tag);
+  if (shelfState.query) params.set("q", shelfState.query);
+  const view = document.querySelector("[data-shelf]")?.dataset.view;
+  if (view && view !== SHELF_VIEW_DEFAULT) params.set("view", view);
+  Object.entries(extra).forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
+  return params.toString();
+}
+
+/* 卡片的链接带上书架这条"来路"，详情页的返回书架就能原样回去 */
+function syncCardLinks() {
+  shelfCards.forEach((card) => {
+    const id = card.dataset.bookId;
+    if (!id) return;
+    const from = shelfQueryString({ focus: id });
+    card.href = `book.html#id=${encodeURIComponent(id)}${from ? `&from=${encodeURIComponent(from)}` : ""}`;
+  });
+}
+
+/* 地址栏同步（replaceState，不产生历史记录） */
+function syncShelfUrl() {
+  const qs = shelfQueryString();
+  try {
+    history.replaceState(null, "", qs ? `${location.pathname}#${qs}` : location.pathname);
+  } catch (err) {
+    /* 某些环境下 file:// 会拒绝，忽略 */
+  }
+  syncCardLinks();
+}
+
 function applyFilters() {
   const query = shelfState.query.trim().toLowerCase();
   let visible = 0;
@@ -399,6 +443,7 @@ function applyFilters() {
     if (!hide) visible += 1;
   });
   if (shelfEmpty) shelfEmpty.hidden = visible > 0;
+  syncShelfUrl();
 }
 
 // 顶部搜索框（js/header.js）派发
@@ -414,9 +459,16 @@ export async function renderShelf() {
   if (!grid) return;
 
   try {
+    const initial = readShelfParams();
+    const initialTag = initial("tag");
+    const initialQuery = initial("q");
+    const focusId = initial("focus");
+
     const data = await loadBooks();
     const books = sortBooks(data.books || []);
     const tags = buildFilters(books.map((b) => b.tags || []));
+    if (initialTag && tags.includes(initialTag)) shelfState.tag = initialTag;
+    if (initialQuery) shelfState.query = initialQuery;
 
     if (filterBar) {
       filterBar.replaceChildren();
@@ -424,7 +476,8 @@ export async function renderShelf() {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "filter-chip";
-        if (idx === 0) btn.classList.add("is-active");
+        if (tag === shelfState.tag) btn.classList.add("is-active");
+        else if (idx === 0 && !tags.includes(shelfState.tag)) btn.classList.add("is-active");
         btn.dataset.filter = tag;
         btn.textContent = tag;
         filterBar.appendChild(btn);
@@ -447,6 +500,21 @@ export async function renderShelf() {
       suppressHoverUntilLeave = Boolean(grid.querySelector(".book-card:hover"));
     }
     applyFilters();
+
+    // 从详情页返回时，把搜索框回填成 URL 里的关键词
+    const searchInput = document.querySelector("[data-search-input]");
+    if (searchInput && shelfState.query && !searchInput.value) {
+      searchInput.value = shelfState.query;
+      searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    // 返回到刚才点开的那本书的位置
+    if (focusId) {
+      const target = shelfCards.find((card) => card.dataset.bookId === focusId);
+      if (target && !target.classList.contains("is-hidden")) {
+        requestAnimationFrame(() => target.scrollIntoView({ block: "center" }));
+      }
+    }
   } catch (err) {
     console.error(err);
     grid.innerHTML = "<p style='color: var(--text-tertiary)'>暂无书籍，请先在 data/books.json 添加书籍信息。</p>";
@@ -473,6 +541,7 @@ function applyShelfView(view) {
   } catch (err) {
     /* 隐私模式下忽略 */
   }
+  if (shelfCards.length) syncShelfUrl();
 }
 
 function initShelfView() {
@@ -482,7 +551,8 @@ function initShelfView() {
   } catch (err) {
     saved = null;
   }
-  applyShelfView(saved || VIEW_DEFAULT);
+  const fromUrl = readShelfParams()("view");
+  applyShelfView(fromUrl || saved || VIEW_DEFAULT);
   const controls = document.querySelector("[data-view-btn]");
   if (!controls) return;
   document.querySelectorAll("[data-view-btn]").forEach((btn) => {
