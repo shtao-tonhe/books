@@ -1,7 +1,7 @@
 import { loadBooks } from "./data-loader.js";
 import { applyCoverGlow } from "./color-extract.js";
 import { initSpoiler } from "./spoiler-particles.js";
-import { mountNotes } from "./markdown.js";
+import { mountNotes, renderMarkdown } from "./markdown.js";
 
 /* 参数优先读 query，其次读 hash：
    clean-url 类服务器会把 /book.html?id=1 301 成 /book 并丢掉 query，
@@ -92,6 +92,44 @@ function mountHeaderTitle(title) {
     { rootMargin: `-${headerHeight}px 0px 0px 0px`, threshold: 0 }
   );
   io.observe(heroTitle);
+}
+
+/* 作者照片 + 作者简介；两者都可缺席（匿名网文这种就没有简介） */
+function mountAuthor(book) {
+  const photoWrap = document.querySelector("[data-author-photos]");
+  const bio = document.querySelector("[data-author-bio]");
+  const bioText = document.querySelector("[data-author-desc]");
+
+  const photos = []
+    .concat(book.author_photo || book.authorPhoto || [])
+    .filter(Boolean);
+
+  if (photoWrap) {
+    photoWrap.replaceChildren();
+    photos.forEach((src, index) => {
+      const img = document.createElement("img");
+      img.className = "detail-hero__photo";
+      img.src = src;
+      img.alt = `${book.author || "作者"} 照片${photos.length > 1 ? ` ${index + 1}` : ""}`;
+      img.loading = "lazy";
+      img.decoding = "async";
+      photoWrap.appendChild(img);
+    });
+    photoWrap.hidden = photos.length === 0;
+  }
+
+  const desc = String(book.author_desc || book.authorDesc || "");
+  if (bio && bioText) {
+    // 兼容手写时用 "/n" 当换行的情况
+    const normalized = desc.replace(/\/n/g, "\n\n").trim();
+    if (normalized) {
+      bioText.innerHTML = renderMarkdown(normalized);
+      bio.hidden = false;
+    } else {
+      bioText.replaceChildren();
+      bio.hidden = true;
+    }
+  }
 }
 
 const DOWNLOAD_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>';
@@ -312,6 +350,7 @@ export async function renderBook() {
       }
     }
 
+    mountAuthor(book);
     mountDownloads(book);
 
     // 读者笔记：默认约定 data/notes/<id>.md，也可以在 books.json 里用 notes 指定别的路径
