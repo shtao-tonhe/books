@@ -82,14 +82,18 @@
   --tilt: 1.5deg;
 }
 
-/* hover：竖着展开成一列，每张都完整露出（间距 2px），绝对定位所以不影响布局 */
+/* hover：从当前位置往下竖着排开，每张都完整露出（间距 2px），绝对定位所以不影响布局 */
 .detail-hero__photos:hover .detail-hero__photo {
-  /* 以最上面那张为锚点向上排开：整列底部贴住占位框底部，尽量往空白处（banner）延伸，
-     不覆盖下面的「关于作者」正文 */
   transform: translateX(calc((var(--photo-count, 1) - 1) * 17%))
-    translateY(calc((var(--i, 0) - (var(--photo-count, 1) - 1)) * 101%))
+    translateY(calc(var(--i, 0) * 101%))
     rotate(0deg);
   box-shadow: 0 40px 70px -40px rgba(40, 30, 18, 0.85);
+}
+
+/* 照片往下展开会盖到「关于作者」，hover 期间让简介先退到后面 */
+.detail-hero:has(.detail-hero__photos:hover) .detail-hero__bio {
+  opacity: 0.3;
+  transition: opacity var(--dur-med) var(--ease-out-expo);
 }
 
 /* 作者简介：放在基础信息下面，没有就整块隐藏 */
