@@ -1,31 +1,30 @@
 .detail-hero {
   display: grid;
-  /* 封面 / 基础信息 / 作者照片；作者简介排在基础信息下方 */
+  /* 第一行：封面 / 基础信息 / 作者照片；第二行：作者简介（横跨整行） */
   grid-template-columns: minmax(210px, 280px) minmax(0, 1fr) auto;
   grid-template-rows: auto auto;
-  gap: clamp(28px, 5vw, 56px);
-  row-gap: clamp(18px, 2.4vw, 26px);
-  align-items: start;
-}
-
-.detail-hero__cover {
-  grid-column: 1;
-  grid-row: 1 / span 2;
+  column-gap: clamp(28px, 5vw, 56px);
+  row-gap: clamp(22px, 3vw, 34px);
+  align-items: center;
 }
 
 .detail-hero__content {
   grid-column: 2;
   grid-row: 1;
+  align-self: center;
 }
 
 .detail-hero__photos {
   grid-column: 3;
-  grid-row: 1 / span 2;
+  grid-row: 1;
+  align-self: center;
 }
 
+/* 简介占满整行：封面和照片下方都不会留下空档 */
 .detail-hero__bio {
-  grid-column: 2;
+  grid-column: 1 / -1;
   grid-row: 2;
+  max-width: min(100%, 1000px);
 }
 
 /* 作者照片：多张时叠放成一摞，hover 会稍微散开 */
@@ -77,7 +76,7 @@
 .detail-hero__bio {
   padding-top: clamp(16px, 2vw, 22px);
   border-top: 1px solid var(--border-subtle);
-  max-width: 72ch;
+  /* 跨满「信息列 + 照片列」，不额外限宽：行数更少，右侧不会被照片列留白 */
 }
 
 .detail-hero__bio[hidden] {
@@ -106,8 +105,22 @@
   margin-bottom: 0;
 }
 
+.detail-hero__bio-author + .detail-hero__bio-author {
+  margin-top: 18px;
+}
+
+.detail-hero__bio-name {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
 .detail-hero__cover {
   position: relative;
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
   aspect-ratio: 3 / 4.2;
   border-radius: calc(var(--radius-lg) - 4px);
   overflow: hidden;
@@ -384,23 +397,30 @@
 @media (max-width: 1080px) {
   .detail-hero {
     grid-template-columns: minmax(200px, 240px) minmax(0, 1fr);
-    grid-template-rows: auto auto auto;
-  }
-  .detail-hero__cover {
-    grid-row: 1 / span 3;
   }
   /* 照片挪到信息列下方，简介再往下 */
   .detail-hero__photos {
     grid-column: 2;
     grid-row: 2;
+    align-self: start;
     padding-top: 0;
   }
+  .detail-hero__cover {
+    grid-row: 1 / span 2;
+  }
   .detail-hero__bio {
-    grid-column: 2;
+    grid-column: 1 / -1;
     grid-row: 3;
+    max-width: 72ch;
   }
   .detail-hero__photo {
     width: clamp(110px, 16vw, 150px);
+  }
+}
+
+@media (max-width: 1080px) {
+  .detail-hero__bio {
+    max-width: 72ch;
   }
 }
 
@@ -417,6 +437,10 @@
   .detail-hero__bio {
     grid-column: 1;
     grid-row: auto;
+  }
+  .detail-hero__cover {
+    grid-row: auto;
+    align-self: start;
   }
   .detail-hero__photos {
     padding-top: 4px;

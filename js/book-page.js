@@ -94,23 +94,54 @@ function mountHeaderTitle(title) {
   io.observe(heroTitle);
 }
 
-/* 作者照片 + 作者简介；两者都可缺席（匿名网文这种就没有简介） */
+/* 作者信息：支持单作者（author / author_photo / author_desc）
+   也支持多作者（authors: [{ name, photo, bio }]），photo 可以是字符串或数组 */
+function normalizeAuthors(book) {
+  const toList = (value) => (Array.isArray(value) ? value : [value]).filter(Boolean);
+  const list = [];
+
+  if (Array.isArray(book.authors) && book.authors.length) {
+    book.authors.forEach((author) => {
+      if (!author) return;
+      const name = typeof author === "string" ? author : author.name || "";
+      if (!name && !author.photo && !author.bio) return;
+      list.push({
+        name,
+        photos: typeof author === "string" ? [] : toList(author.photo || author.photos),
+        bio: typeof author === "string" ? "" : String(author.bio || author.desc || "")
+      });
+    });
+  }
+
+  if (!list.length) {
+    list.push({
+      name: book.author || "",
+      photos: toList(book.author_photo || book.authorPhoto),
+      bio: String(book.author_desc || book.authorDesc || "")
+    });
+  }
+
+  return list;
+}
+
+/* 作者照片 + 作者简介；两者都可缺席（匿名网文就没有简介） */
 function mountAuthor(book) {
   const photoWrap = document.querySelector("[data-author-photos]");
   const bio = document.querySelector("[data-author-bio]");
   const bioText = document.querySelector("[data-author-desc]");
+  const authors = normalizeAuthors(book);
 
-  const photos = []
-    .concat(book.author_photo || book.authorPhoto || [])
-    .filter(Boolean);
-
+  // 头像：所有作者的所有照片按顺序叠放
+  const photos = authors.flatMap((author) => author.photos);
   if (photoWrap) {
     photoWrap.replaceChildren();
     photos.forEach((src, index) => {
       const img = document.createElement("img");
       img.className = "detail-hero__photo";
       img.src = src;
-      img.alt = `${book.author || "作者"} 照片${photos.length > 1 ? ` ${index + 1}` : ""}`;
+      img.alt = `${authors.map((a) => a.name).filter(Boolean).join("、") || "作者"} 照片${
+        photos.length > 1 ? ` ${index + 1}` : ""
+      }`;
       img.loading = "lazy";
       img.decoding = "async";
       photoWrap.appendChild(img);
@@ -118,17 +149,26 @@ function mountAuthor(book) {
     photoWrap.hidden = photos.length === 0;
   }
 
-  const desc = String(book.author_desc || book.authorDesc || "");
+  // 简介：作者名（单作者时报书名下的作者名，不重复）
+  const withBio = authors.filter((author) => author.bio.trim());
   if (bio && bioText) {
-    // 兼容手写时用 "/n" 当换行的情况
-    const normalized = desc.replace(/\/n/g, "\n\n").trim();
-    if (normalized) {
-      bioText.innerHTML = renderMarkdown(normalized);
-      bio.hidden = false;
-    } else {
-      bioText.replaceChildren();
-      bio.hidden = true;
-    }
+    bioText.replaceChildren();
+    withBio.forEach((author) => {
+      const block = document.createElement("div");
+      block.className = "detail-hero__bio-author";
+      if (withBio.length > 1 && author.name) {
+        const name = document.createElement("p");
+        name.className = "detail-hero__bio-name";
+        name.textContent = author.name;
+        block.appendChild(name);
+      }
+      const text = document.createElement("div");
+      // 兼容手写时用 "/n" 当换行的情况
+      text.innerHTML = renderMarkdown(author.bio.replace(/\/n/g, "\n\n").trim());
+      block.appendChild(text);
+      bioText.appendChild(block);
+    });
+    bio.hidden = withBio.length === 0;
   }
 }
 
