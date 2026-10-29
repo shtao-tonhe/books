@@ -7,6 +7,29 @@ const TRACE_PAD = 8;      // 描边层外扩，需与 css 里的 --trace-pad 一
 const RING_GAP = 0;       // 描边与卡片外缘的视觉间隙
 const RING_STROKE = 2;    // 描边线宽，需与 css 一致
 const FINE_POINTER = window.matchMedia("(hover: hover) and (pointer: fine)");
+const NAVIGATION_ENTRY = performance.getEntriesByType("navigation")[0];
+let suppressHoverUntilLeave = NAVIGATION_ENTRY?.type === "back_forward";
+
+// 从详情页按浏览器后退返回时，鼠标可能仍停在触发自动跳转的卡片上。
+// 重置卡片状态，并等鼠标离开后再允许悬浮跳转，避免返回后立刻再次进入详情。
+window.addEventListener("pageshow", (event) => {
+  // 后退/前进回来（含 bfcache 恢复）：把卡片状态清干净，并先屏蔽 hover 跳转，
+  // 否则指针还停在原卡片上，几秒后会被再次带进详情页 —— 看起来就像"back 失灵"
+  if (!event.persisted && !suppressHoverUntilLeave) return;
+  document.querySelectorAll(".book-card").forEach((card) => card.__resetHoverTrace?.());
+  suppressHoverUntilLeave = true;
+});
+
+// 指针离开所有卡片后恢复 hover 跳转（鼠标停在空白处也算"离开"）
+document.addEventListener(
+  "pointermove",
+  (event) => {
+    if (!suppressHoverUntilLeave) return;
+    if (event.target.closest?.(".book-card")) return;
+    suppressHoverUntilLeave = false;
+  },
+  { passive: true }
+);
 
 /* 卡片 / hover 结束后统一走这里进入详情页 */
 const detailUrl = (book) => `book.html?id=${encodeURIComponent(book.id)}`;
@@ -131,8 +154,8 @@ function createCard(book) {
   card.dataset.bookId = book.id;
   card.setAttribute("aria-label", book.title ? `查看《${book.title}》详情` : "查看书籍详情");
 
-  // 有封面的待读书籍仍做灰化；没有封面的是"星尘占位"卡片，默认就保持 hover 时的配色与亮度
-  if (Array.isArray(book.type) && book.type.includes("待读") && book.cover) {
+  // 「待读」统一走灰化态（有封面 / 星尘占位都算），保证同一状态看起来一致
+  if (Array.isArray(book.type) && book.type.includes("待读")) {
     card.classList.add("is-inactive");
   }
   if (book.tags) card.dataset.tags = book.tags.join("|");
@@ -234,16 +257,34 @@ function createCard(book) {
     hideBorder(); // 淡出后再取消动画
   };
 
-  // hover 满一圈（或点击卡片）后进入详情
+  card.__resetHoverTrace = () => {
+    clearTimer();
+    if (state.animation) {
+      state.animation.cancel();
+      state.animation = null;
+    }
+    state.active = false;
+    state.traced = false;
+    card.__entering = false;   // bfcache 恢复后这张卡可能还留着"正在跳转"的标记
+    card.classList.remove("is-tracing", "is-traced");
+    stroke.style.removeProperty("stroke-dashoffset");
+  };
+
+  // hover 满一圈后进入详情：先把 hover 的样式清干净，再走和"单击"完全一样的导航路径
   const goToDetail = () => {
     if (card.__entering) return;
+    card.__resetHoverTrace();   // 先清掉 hover 的样式（顺带复位 __entering）
     card.__entering = true;
-    window.location.href = card.getAttribute("href");
+    card.click();               // 和用户单击走同一条导航路径
   };
 
   /* --- 交互 --- */
-  card.addEventListener("mouseenter", startTrace);
+  card.addEventListener("mouseenter", () => {
+    if (suppressHoverUntilLeave) return;
+    startTrace();
+  });
   card.addEventListener("mouseleave", () => {
+    if (suppressHoverUntilLeave) suppressHoverUntilLeave = false;
     if (state.traced) return; // 已经画满（正在跳转）就别再收回去
     abortTrace();
   });
@@ -296,7 +337,6 @@ function createCard(book) {
   meta.className = "book-card__meta";
   const metaHeader = document.createElement("div");
   metaHeader.className = "book-card__meta-header";
-  if (pin) metaHeader.appendChild(pin);
   const title = document.createElement("h2");
   title.className = "book-card__title";
   title.textContent = book.title || "";
@@ -335,6 +375,8 @@ function createCard(book) {
   inner.appendChild(meta);
   card.appendChild(border);
   card.appendChild(inner);
+  // 角标挂在卡片上（不用 meta 里），这样「待读」灰化只作用于 inner，推荐标签保持原色
+  if (pin) card.appendChild(pin);
 
   return card;
 }
@@ -401,6 +443,9 @@ export async function renderShelf() {
     shelfCards = books.map(createCard);
     shelfEmpty = document.querySelector("[data-shelf-empty]");
     grid.replaceChildren(...shelfCards);
+    if (NAVIGATION_ENTRY?.type === "back_forward") {
+      suppressHoverUntilLeave = Boolean(grid.querySelector(".book-card:hover"));
+    }
     applyFilters();
   } catch (err) {
     console.error(err);

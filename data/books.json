@@ -92,7 +92,7 @@
       "title": "下注思考",
       "titleEn": "Thinking in Bets: Making Smarter Decisions When You Don't Have All the Facts",
       "author": "安妮·杜克",
-      "cover": null,
+      "cover": "assets/covers/008.jpg",
       "coverPalette": {
         "bgTop": "rgba(84, 80, 98, 0.92)",
         "bgBottom": "rgba(52, 50, 66, 0.96)",
@@ -163,9 +163,9 @@
         "人类学"
       ],
       "type": [
-        "已读"
+        "待读"
       ],
-      "status": "read",
+      "status": "toread",
       "pinned": false,
       "pinText": "推荐",
       "sort": 2,
@@ -227,9 +227,9 @@
         "自我成长"
       ],
       "type": [
-        "已读"
+        "待读"
       ],
-      "status": "read",
+      "status": "toread",
       "pinned": false,
       "pinText": "推荐",
       "sort": 4,
@@ -291,9 +291,9 @@
         "中国"
       ],
       "type": [
-        "已读"
+        "待读"
       ],
-      "status": "read",
+      "status": "toread",
       "pinned": true,
       "pinText": "值得一读",
       "sort": 6,
