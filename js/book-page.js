@@ -124,6 +124,37 @@ function normalizeAuthors(book) {
   return list;
 }
 
+/* 多张照片：默认叠放，点击展开成一行（展开后按容器宽度均分，不会撑破布局） */
+function makePhotoStackExpandable(wrap, count) {
+  wrap.classList.add("detail-hero__photos--expandable");
+  wrap.style.setProperty("--photo-count", String(count));
+  wrap.setAttribute("role", "button");
+  wrap.setAttribute("tabindex", "0");
+  wrap.setAttribute("aria-expanded", "false");
+  wrap.setAttribute("aria-label", `展开作者照片（共 ${count} 张）`);
+
+  const setOpen = (open) => {
+    wrap.classList.toggle("is-expanded", open);
+    wrap.setAttribute("aria-expanded", String(open));
+    wrap.setAttribute("aria-label", `${open ? "收起" : "展开"}作者照片（共 ${count} 张）`);
+  };
+
+  wrap.addEventListener("click", () => setOpen(!wrap.classList.contains("is-expanded")));
+  wrap.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setOpen(!wrap.classList.contains("is-expanded"));
+    } else if (event.key === "Escape") {
+      setOpen(false);
+    }
+  });
+  // 点空白处收起
+  document.addEventListener("click", (event) => {
+    if (!wrap.classList.contains("is-expanded")) return;
+    if (!wrap.contains(event.target)) setOpen(false);
+  });
+}
+
 /* 作者照片 + 作者简介；两者都可缺席（匿名网文就没有简介） */
 function mountAuthor(book) {
   const photoWrap = document.querySelector("[data-author-photos]");
@@ -147,6 +178,11 @@ function mountAuthor(book) {
       photoWrap.appendChild(img);
     });
     photoWrap.hidden = photos.length === 0;
+    photoWrap.classList.remove("detail-hero__photos--expandable", "is-expanded");
+    photoWrap.removeAttribute("role");
+    photoWrap.removeAttribute("aria-expanded");
+    photoWrap.removeAttribute("tabindex");
+    if (photos.length > 1) makePhotoStackExpandable(photoWrap, photos.length);
   }
 
   // 简介：作者名（单作者时报书名下的作者名，不重复）

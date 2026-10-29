@@ -215,6 +215,15 @@
       "title": "被讨厌的勇气",
       "titleEn": "The Courage to Be Disliked",
       "author": "岸见一郎、古贺史健",
+      "authors": [{
+        "name": "岸见一郎",
+        "photo": ["assets/authors/004-1.jpg", "assets/authors/004-2.jpg"],
+        "bio": "哲学家，日本阿德勒心理学会认定顾问。\n\n主要著作有《被讨厌的勇气》。"
+      },{
+        "name": "古贺史健",
+        "photo": "assets/authors/004-3.jpg",
+        "bio": "文学作家，擅长对话体写作。"
+      }],
       "cover": "assets/covers/004.svg",
       "coverPalette": {
         "bgTop": "rgba(127, 143, 160, 0.92)",

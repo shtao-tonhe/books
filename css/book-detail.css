@@ -27,12 +27,15 @@
   max-width: min(100%, 1000px);
 }
 
-/* 作者照片：多张时叠放成一摞，hover 会稍微散开 */
+/* 作者照片：横向排列，多张默认叠在一起，hover 微微散开，点击整排展开 */
 .detail-hero__photos {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-top: 4px;
+  flex-direction: row;
+  align-items: center;
+  justify-self: end;
+  width: clamp(200px, 20vw, 320px);
+  padding: 6px 0 8px;
+  position: relative;
 }
 
 .detail-hero__photos[hidden] {
@@ -40,6 +43,7 @@
 }
 
 .detail-hero__photo {
+  flex: none;
   width: clamp(120px, 12vw, 164px);
   aspect-ratio: 3 / 4;
   object-fit: cover;
@@ -48,28 +52,74 @@
   background: var(--surface-2);
   box-shadow: 0 30px 60px -40px rgba(40, 30, 18, 0.95);
   transition:
+    width var(--dur-med) var(--ease-spring),
     margin var(--dur-med) var(--ease-spring),
     transform var(--dur-med) var(--ease-spring);
 }
 
 .detail-hero__photo + .detail-hero__photo {
-  margin-top: -56%;
+  margin-left: -58%;
+}
+
+/* hover：略微散开，露出后面那几张 */
+.detail-hero__photos--expandable:hover .detail-hero__photo + .detail-hero__photo {
+  margin-left: -26%;
+}
+
+/* 点击展开：均分容器宽度，全部露出且不会撑破布局 */
+.detail-hero__photos--expandable.is-expanded .detail-hero__photo {
+  width: calc((100% - (8px * (var(--photo-count, 1) - 1))) / var(--photo-count, 1));
+  margin-left: 8px;
+  transform: none;
+}
+
+.detail-hero__photos--expandable.is-expanded .detail-hero__photo:first-child {
+  margin-left: 0;
+}
+
+.detail-hero__photos--expandable {
+  cursor: zoom-in;
+}
+
+.detail-hero__photos--expandable.is-expanded {
+  cursor: zoom-out;
+}
+
+.detail-hero__photos--expandable::after {
+  content: "展开";
+  position: absolute;
+  right: 0;
+  bottom: -10px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--text-tertiary);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-spring);
+  pointer-events: none;
+}
+
+.detail-hero__photos--expandable:hover::after {
+  opacity: 1;
+}
+
+.detail-hero__photos--expandable.is-expanded::after {
+  content: "收起";
 }
 
 .detail-hero__photos > :nth-child(1) {
-  transform: rotate(-4deg);
+  transform: rotate(-3deg);
 }
 
 .detail-hero__photos > :nth-child(2) {
-  transform: rotate(3deg) translateX(16px);
+  transform: rotate(2.5deg) translateY(-6px);
 }
 
 .detail-hero__photos > :nth-child(3) {
-  transform: rotate(-2deg) translateX(-12px);
+  transform: rotate(-1.5deg) translateY(6px);
 }
 
-.detail-hero__photos:hover > * + * {
-  margin-top: -38%;
+.detail-hero__photos > :nth-child(n + 4) {
+  transform: rotate(1.5deg) translateY(-4px);
 }
 
 /* 作者简介：放在基础信息下面，没有就整块隐藏 */
@@ -448,8 +498,8 @@
   .detail-hero__photo {
     width: clamp(104px, 30vw, 150px);
   }
-  .detail-hero__photo + .detail-hero__photo {
-    margin-top: -46%;
+  .detail-hero__photos {
+    width: min(100%, 360px);
   }
 }
 /* 空状态：id 缺失 / 查不到这本书 */
