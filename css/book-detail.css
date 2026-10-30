@@ -90,11 +90,6 @@
   box-shadow: 0 40px 70px -40px rgba(40, 30, 18, 0.85);
 }
 
-/* 照片往下展开会盖到「关于作者」，hover 期间让简介先退到后面 */
-.detail-hero:has(.detail-hero__photos:hover) .detail-hero__bio {
-  opacity: 0.3;
-  transition: opacity var(--dur-med) var(--ease-out-expo);
-}
 
 /* 作者简介：放在基础信息下面，没有就整块隐藏 */
 .detail-hero__bio {
@@ -116,9 +111,33 @@
 }
 
 .detail-hero__bio-text {
+  position: relative;
   color: var(--text-secondary);
   font-size: clamp(14px, 1vw, 15.5px);
   line-height: 1.85;
+}
+
+/* 逐行下划线：用 repeating-linear-gradient 每行画一条，再靠 clip-path 从上往下扫出来 */
+.detail-hero__bio-text::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(1.5em - 1px),
+    color-mix(in srgb, var(--accent) 55%, transparent) calc(1.5em - 1px),
+    color-mix(in srgb, var(--accent) 55%, transparent) 1.5em
+  );
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1100ms var(--ease-out-expo);
+}
+
+/* 悬停作者照片（或简介本身）时，从头到尾把下划线画完 */
+.detail-hero__photos:hover ~ .detail-hero__bio .detail-hero__bio-text::after,
+.detail-hero__bio:hover .detail-hero__bio-text::after {
+  clip-path: inset(0 0 0 0);
 }
 
 .detail-hero__bio-text p {
