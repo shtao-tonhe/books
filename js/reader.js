@@ -207,11 +207,32 @@ export async function initReader() {
   function onRelocated(location) {
     if (!location || !location.start) return;
     currentCfi = location.start.cfi;
-    // 换章节后需要重新挑聚焦段落（内容和 DOM 都换了一批）
-    if (location.start.href !== lastHref) {
-      lastHref = location.start.href;
-      window.setTimeout(() => applyFocus(false), 60);
+    if (!settings.focus) return;
+
+    // 换页后按 CFI 重新选锚点，再落焦点
+    const contents = currentContents();
+    const doc = contents && (contents.document || contents);
+    if (!doc || !doc.body) return;
+
+    const mode = pendingFocus;
+    if (mode === "first") {
+      focusEl =
+        (location.start.cfi && anchorFromCfi(doc, location.start.cfi)) ||
+        visibleBlocks(doc)[0] ||
+        null;
+      pendingFocus = null;
+    } else if (mode === "last") {
+      const blocks = visibleBlocks(doc);
+      focusEl =
+        (location.end && location.end.cfi && anchorFromCfi(doc, location.end.cfi)) ||
+        blocks[blocks.length - 1] ||
+        null;
+      pendingFocus = null;
+    } else if (!focusEl || !doc.contains(focusEl)) {
+      focusEl = (location.start.cfi && anchorFromCfi(doc, location.start.cfi)) || null;
     }
+
+    requestAnimationFrame(() => applyFocus());
     try {
       localStorage.setItem(progressKey(id), currentCfi);
     } catch (err) {
@@ -223,9 +244,8 @@ export async function initReader() {
   /* ---------- 聚焦阅读 ---------- */
 
   const BLOCK_SELECTOR = "p, li, h1, h2, h3, h4, h5, h6, blockquote, dd, td";
-  let focusIndex = 0;          // 当前聚焦块在该章节里的序号
-  let pendingFocus = null;     // "first" | "last"：翻到新章节后从哪头开始
-  let lastHref = null;         // 上一次渲染的章节，用来判断是否换章
+  let focusEl = null;          // 当前聚焦块（元素引用，只在本页有效）
+  let pendingFocus = null;     // "first" | "last"：翻页后从新页的首/末块开始
 
   function currentContents() {
     if (!rendition) return null;
@@ -238,6 +258,27 @@ export async function initReader() {
     return Array.from(doc.querySelectorAll(BLOCK_SELECTOR)).filter(
       (node) => (node.textContent || "").trim().length > 0
     );
+  }
+
+  /* 只取「当前这一页」里的块：分页模式下别的列在 iframe 显示区域之外
+     （注意用 iframe 元素的尺寸，不能用文档的 innerWidth：epub.js 会把文档铺成两列宽） */
+  function visibleBlocks(doc) {
+    const frame = document.querySelector("[data-reader-viewer] iframe");
+    if (!frame) return [];
+    // epub.js 会把 iframe 铺得比可视区更宽（多列），所以把块坐标换算到窗口坐标再判断
+    const box = frame.getBoundingClientRect();
+    return blocksOf(doc).filter((node) => {
+      const rect = node.getBoundingClientRect();
+      if (rect.height <= 0 || rect.width <= 0) return false;
+      const left = box.left + rect.left;
+      const top = box.top + rect.top;
+      return (
+        top < window.innerHeight - 2 &&
+        top + rect.height > 2 &&
+        left < window.innerWidth - 2 &&
+        left + rect.width > 2
+      );
+    });
   }
 
   /* 把聚焦样式注入书内文档（不做 reflow，靠 box-shadow 撑出底色） */
@@ -268,85 +309,121 @@ export async function initReader() {
     `;
   }
 
-  /* 聚焦块不在可视区时，翻到它所在的那一页 */
-  function revealBlock(target) {
-    const contents = currentContents();
-    if (!target || !contents || !rendition) return;
-    const doc = contents.document || contents;
-    const rect = target.getBoundingClientRect();
-    const view = doc.defaultView || window;
-    const visible =
-      rect.bottom > 0 && rect.top < view.innerHeight && rect.right > 0 && rect.left < view.innerWidth;
-    if (visible) return;
-    if (typeof contents.cfiFromNode !== "function") return;
+  /* 用 epub.js 给出的页首/页尾 CFI 定位到具体块，比量几何位置可靠 */
+  function anchorFromCfi(doc, cfi) {
+    if (!doc || !cfi || !window.ePub || !window.ePub.CFI) return null;
     try {
-      const cfi = contents.cfiFromNode(target);
-      if (cfi) rendition.display(cfi);
+      const range = new window.ePub.CFI(cfi).range(doc);
+      if (!range) return null;
+      let node = range.startContainer;
+      if (!node) return null;
+      if (node.nodeType === 3) node = node.parentElement;
+      const el = node && node.closest ? node.closest(BLOCK_SELECTOR) : null;
+      return el && (el.textContent || "").trim() ? el : null;
     } catch (err) {
-      /* 忽略 */
+      return null;
     }
   }
 
-  function applyFocus(preserveIndex = true) {
-    const contents = currentContents();
-    if (!contents) return;
-    const doc = contents.document || contents;
-    if (!doc || !doc.body) return;
+  function showHint() {
+    if (!hintEl) return;
+    hintEl.hidden = false;
+    hintEl.classList.remove("is-faded");
+    window.clearTimeout(hintEl.__timer);
+    hintEl.__timer = window.setTimeout(() => hintEl.classList.add("is-faded"), 2600);
+  }
 
-    injectFocusStyle(contents);
+  /* 在当前页里标出聚焦块（count 段连续） */
+  function markFocus() {
+    const contents = currentContents();
+    const doc = contents && (contents.document || contents);
+    if (!doc || !doc.body) return;
     doc.body.dataset.readerFocus = settings.focus ? "on" : "off";
     doc.querySelectorAll(".reader-focus-target").forEach((node) => node.classList.remove("reader-focus-target"));
 
     if (!settings.focus) {
+      focusEl = null;
       if (hintEl) hintEl.hidden = true;
       return;
     }
 
-    const blocks = blocksOf(doc);
-    if (!blocks.length) return;
-    if (!preserveIndex && pendingFocus === "last") focusIndex = blocks.length - 1;
-    else if (!preserveIndex) focusIndex = 0;
-    pendingFocus = null;
-    focusIndex = Math.max(0, Math.min(blocks.length - 1, focusIndex));
+    const blocks = visibleBlocks(doc);
+    if (!blocks.length) {
+      focusEl = null;
+      return;
+    }
+
+    let index = 0;
+    if (pendingFocus === "last") {
+      index = blocks.length - 1;
+    } else if (pendingFocus === "first") {
+      index = 0;
+    } else if (focusEl) {
+      const found = blocks.indexOf(focusEl);
+      if (found >= 0) {
+        index = found;
+      } else {
+        // 原块已不在本页（翻页了）：按垂直位置取最接近的一块
+        const top = focusEl.getBoundingClientRect().top;
+        blocks.forEach((node, i) => {
+          if (node.getBoundingClientRect().top <= top + 1) index = i;
+        });
+      }
+    }
 
     const count = Math.max(1, Number(settings.focusCount) || 1);
+    if (index + count > blocks.length) index = Math.max(0, blocks.length - count);
+    index = Math.max(0, Math.min(blocks.length - 1, index));
+
     for (let i = 0; i < count; i += 1) {
-      const target = blocks[focusIndex + i];
+      const target = blocks[index + i];
       if (target) target.classList.add("reader-focus-target");
     }
-
-    if (hintEl) {
-      hintEl.hidden = false;
-      hintEl.classList.remove("is-faded");
-      window.clearTimeout(hintEl.__timer);
-      hintEl.__timer = window.setTimeout(() => hintEl.classList.add("is-faded"), 2600);
-    }
+    focusEl = blocks[index] || null;
+    showHint();
   }
 
-  /* 上下键移动聚焦；走到章节两端就翻页 */
+  function applyFocus() {
+    const contents = currentContents();
+    if (!contents) return;
+    injectFocusStyle(contents);
+    markFocus();
+  }
+
+  /* 翻页；落点由 relocated 里的 CFI 定位决定（pendingFocus 指明从首块还是末块开始） */
+  function turnPage(where) {
+    pendingFocus = where;
+    focusEl = null;
+    if (!rendition) return;
+    if (where === "last") rendition.prev();
+    else rendition.next();
+  }
+
+  /* 上下键：在当前页内下移/上移；到页末再按就翻页，落点由 pendingFocus 决定 */
   function moveFocus(delta) {
     if (!settings.focus) return false;
     const contents = currentContents();
     const doc = contents && (contents.document || contents);
     if (!doc || !doc.body) return false;
-    const blocks = blocksOf(doc);
+    const blocks = visibleBlocks(doc);
     if (!blocks.length) return false;
 
-    const nextIndex = focusIndex + delta;
+    let index = focusEl ? blocks.indexOf(focusEl) : -1;
+    if (index < 0) index = delta > 0 ? -1 : 0;
+    const nextIndex = index + delta;
+
     if (nextIndex < 0) {
-      pendingFocus = "last";
-      if (rendition) rendition.prev();
+      turnPage("last");
       return true;
     }
     if (nextIndex >= blocks.length) {
-      pendingFocus = "first";
-      if (rendition) rendition.next();
+      turnPage("first");
       return true;
     }
 
-    focusIndex = nextIndex;
-    applyFocus(true);
-    revealBlock(blocks[focusIndex]);
+    pendingFocus = null;
+    focusEl = blocks[nextIndex];
+    markFocus();
     return true;
   }
 
@@ -381,14 +458,12 @@ export async function initReader() {
         if (!settings.focus) return;
         const block = event.target.closest && event.target.closest(BLOCK_SELECTOR);
         if (!block) return;
-        const blocks = blocksOf(doc);
-        const index = blocks.indexOf(block);
-        if (index < 0) return;
-        focusIndex = index;
-        applyFocus(true);
+        focusEl = block;
+        pendingFocus = null;
+        markFocus();
       });
       injectFocusStyle(contents);
-      applyFocus(false);
+      applyFocus();
     });
     // epub.js 只按首次测到的高度铺 iframe，布局晚一点就得手动 resize
     rendition.display(currentCfi || undefined);
@@ -419,7 +494,24 @@ export async function initReader() {
   window.__reader = {
     get epub() { return epub; },
     get rendition() { return rendition; },
-    get cfi() { return currentCfi; }
+    get cfi() { return currentCfi; },
+    focusState() {
+      const contents = currentContents();
+      const doc = contents && (contents.document || contents);
+      if (!doc || !doc.body) return null;
+      const blocks = visibleBlocks(doc);
+      const marked = Array.from(doc.querySelectorAll(".reader-focus-target"));
+      return {
+        onPage: blocks.length,
+        first: blocks[0] ? (blocks[0].textContent || "").slice(0, 16) : null,
+        marked: marked[0] ? (marked[0].textContent || "").slice(0, 16) : null,
+        markedCount: marked.length,
+        isFirst: marked[0] === blocks[0],
+        isLast: marked[marked.length - 1] === blocks[blocks.length - 1],
+        pending: pendingFocus,
+        page: (document.querySelector("[data-reader-progress-label]") || {}).textContent
+      };
+    }
   };
   epub.ready.then(() => {
     showStatus(null);
@@ -476,7 +568,7 @@ export async function initReader() {
     saveSettings(settings);
     syncUi();
     if (options.focusOnly) {
-      applyFocus(true);
+      applyFocus();
       return;
     }
     queueRebuild();
@@ -486,14 +578,9 @@ export async function initReader() {
   if (focusToggle) {
     focusToggle.addEventListener("click", () => {
       settings.focus = !settings.focus;
-      if (settings.focus) focusIndex = focusIndex || 0;
+      focusEl = null;
+      pendingFocus = settings.focus ? "first" : null;
       applyChange({ focusOnly: true });
-      if (settings.focus) {
-        const contents = currentContents();
-        const doc = contents && (contents.document || contents);
-        const blocks = doc && doc.body ? blocksOf(doc) : [];
-        if (blocks.length) revealBlock(blocks[Math.min(focusIndex, blocks.length - 1)]);
-      }
     });
   }
 
