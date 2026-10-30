@@ -214,33 +214,11 @@ export async function initReader() {
     const doc = contents && (contents.document || contents);
     if (!doc || !doc.body) return;
 
-    const mode = pendingFocus;
-    if (mode === "first") {
-      const blocks = visibleBlocks(doc);
-      let anchor =
-        (location.start.cfi && anchorFromCfi(doc, location.start.cfi)) || blocks[0] || null;
-      // 这一段在上一页已经读过（跨页重复），往后挪一条，避免看起来没翻动
-      if (anchor && anchor === beforeTurnEl) {
-        const index = blocks.indexOf(anchor);
-        anchor = blocks[index + 1] || anchor;
-      }
-      focusEl = anchor;
-      pendingFocus = null;
-    } else if (mode === "last") {
-      const blocks = visibleBlocks(doc);
-      let anchor =
-        (location.end && location.end.cfi && anchorFromCfi(doc, location.end.cfi)) ||
-        blocks[blocks.length - 1] ||
-        null;
-      if (anchor && anchor === beforeTurnEl) {
-        const index = blocks.indexOf(anchor);
-        anchor = blocks[index - 1] || anchor;
-      }
-      focusEl = anchor;
-      pendingFocus = null;
-    } else if (!focusEl || !doc.contains(focusEl)) {
-      focusEl = (location.start.cfi && anchorFromCfi(doc, location.start.cfi)) || null;
-    }
+    // 翻页后把焦点放回新页第一块（左右键/点击/横扫翻页时也一样）
+    focusEl =
+      (location.start.cfi && anchorFromCfi(doc, location.start.cfi)) ||
+      visibleBlocks(doc)[0] ||
+      null;
 
     requestAnimationFrame(() => applyFocus());
     try {
@@ -255,7 +233,6 @@ export async function initReader() {
 
   const BLOCK_SELECTOR = "p, li, h1, h2, h3, h4, h5, h6, blockquote, dd, td";
   let focusEl = null;          // 当前聚焦块（元素引用，只在本页有效）
-  let pendingFocus = null;     // "first" | "last"：翻页后从新页的首/末块开始
 
   function currentContents() {
     if (!rendition) return null;
@@ -364,11 +341,7 @@ export async function initReader() {
     }
 
     let index = 0;
-    if (pendingFocus === "last") {
-      index = blocks.length - 1;
-    } else if (pendingFocus === "first") {
-      index = 0;
-    } else if (focusEl) {
+    if (focusEl) {
       const found = blocks.indexOf(focusEl);
       if (found >= 0) {
         index = found;
@@ -400,45 +373,20 @@ export async function initReader() {
     markFocus();
   }
 
-  let beforeTurnEl = null;
-
-  /* 翻页；落点由 relocated 里的 CFI 定位决定（pendingFocus 指明从首块还是末块开始） */
-  function turnPage(where) {
-    pendingFocus = where;
-    beforeTurnEl = focusEl;
-    focusEl = null;
-    if (!rendition) return;
-    if (where === "last") rendition.prev();
-    else rendition.next();
-  }
-
-  /* 上下键：在当前页内下移/上移；到页末再按就翻页，落点由 pendingFocus 决定 */
+  /* 上下键：只在当前页内移动聚焦，到头就停（翻页仍用左右键 / 点击 / 横扫） */
   function moveFocus(delta) {
     if (!settings.focus) return false;
     const contents = currentContents();
     const doc = contents && (contents.document || contents);
     if (!doc || !doc.body) return false;
     const blocks = visibleBlocks(doc);
-    // 空白页（插图页、空段落页）没有可聚焦的块，直接翻过去
-    if (!blocks.length) {
-      turnPage(delta > 0 ? "first" : "last");
-      return true;
-    }
+    if (!blocks.length) return false;
 
     let index = focusEl ? blocks.indexOf(focusEl) : -1;
     if (index < 0) index = delta > 0 ? -1 : 0;
     const nextIndex = index + delta;
+    if (nextIndex < 0 || nextIndex >= blocks.length) return true; // 到本页两端就停住
 
-    if (nextIndex < 0) {
-      turnPage("last");
-      return true;
-    }
-    if (nextIndex >= blocks.length) {
-      turnPage("first");
-      return true;
-    }
-
-    pendingFocus = null;
     focusEl = blocks[nextIndex];
     markFocus();
     return true;
@@ -476,7 +424,6 @@ export async function initReader() {
         const block = event.target.closest && event.target.closest(BLOCK_SELECTOR);
         if (!block) return;
         focusEl = block;
-        pendingFocus = null;
         markFocus();
       });
       injectFocusStyle(contents);
@@ -525,7 +472,6 @@ export async function initReader() {
         markedCount: marked.length,
         isFirst: marked[0] === blocks[0],
         isLast: marked[marked.length - 1] === blocks[blocks.length - 1],
-        pending: pendingFocus,
         page: (document.querySelector("[data-reader-progress-label]") || {}).textContent
       };
     }
@@ -596,7 +542,6 @@ export async function initReader() {
     focusToggle.addEventListener("click", () => {
       settings.focus = !settings.focus;
       focusEl = null;
-      pendingFocus = settings.focus ? "first" : null;
       applyChange({ focusOnly: true });
     });
   }
