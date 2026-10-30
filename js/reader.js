@@ -216,17 +216,27 @@ export async function initReader() {
 
     const mode = pendingFocus;
     if (mode === "first") {
-      focusEl =
-        (location.start.cfi && anchorFromCfi(doc, location.start.cfi)) ||
-        visibleBlocks(doc)[0] ||
-        null;
+      const blocks = visibleBlocks(doc);
+      let anchor =
+        (location.start.cfi && anchorFromCfi(doc, location.start.cfi)) || blocks[0] || null;
+      // 这一段在上一页已经读过（跨页重复），往后挪一条，避免看起来没翻动
+      if (anchor && anchor === beforeTurnEl) {
+        const index = blocks.indexOf(anchor);
+        anchor = blocks[index + 1] || anchor;
+      }
+      focusEl = anchor;
       pendingFocus = null;
     } else if (mode === "last") {
       const blocks = visibleBlocks(doc);
-      focusEl =
+      let anchor =
         (location.end && location.end.cfi && anchorFromCfi(doc, location.end.cfi)) ||
         blocks[blocks.length - 1] ||
         null;
+      if (anchor && anchor === beforeTurnEl) {
+        const index = blocks.indexOf(anchor);
+        anchor = blocks[index - 1] || anchor;
+      }
+      focusEl = anchor;
       pendingFocus = null;
     } else if (!focusEl || !doc.contains(focusEl)) {
       focusEl = (location.start.cfi && anchorFromCfi(doc, location.start.cfi)) || null;
@@ -390,9 +400,12 @@ export async function initReader() {
     markFocus();
   }
 
+  let beforeTurnEl = null;
+
   /* 翻页；落点由 relocated 里的 CFI 定位决定（pendingFocus 指明从首块还是末块开始） */
   function turnPage(where) {
     pendingFocus = where;
+    beforeTurnEl = focusEl;
     focusEl = null;
     if (!rendition) return;
     if (where === "last") rendition.prev();
@@ -406,7 +419,11 @@ export async function initReader() {
     const doc = contents && (contents.document || contents);
     if (!doc || !doc.body) return false;
     const blocks = visibleBlocks(doc);
-    if (!blocks.length) return false;
+    // 空白页（插图页、空段落页）没有可聚焦的块，直接翻过去
+    if (!blocks.length) {
+      turnPage(delta > 0 ? "first" : "last");
+      return true;
+    }
 
     let index = focusEl ? blocks.indexOf(focusEl) : -1;
     if (index < 0) index = delta > 0 ? -1 : 0;
