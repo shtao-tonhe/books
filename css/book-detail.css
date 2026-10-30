@@ -117,27 +117,27 @@
   line-height: 1.85;
 }
 
-/* 逐行下划线：用 repeating-linear-gradient 每行画一条，再靠 clip-path 从上往下扫出来 */
-.detail-hero__bio-text::after {
-  content: "";
+/* 逐行下划线：JS 按真实行盒生成 .bio-underline，逐行从左往右画出来（移出反向收回） */
+.bio-underline {
   position: absolute;
-  inset: 0;
+  height: 1.5px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent-strong) 82%, transparent);
+  transform: scaleX(0);
+  transform-origin: left center;
   pointer-events: none;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(1.5em - 1px),
-    color-mix(in srgb, var(--accent) 55%, transparent) calc(1.5em - 1px),
-    color-mix(in srgb, var(--accent) 55%, transparent) 1.5em
-  );
-  clip-path: inset(0 0 100% 0);
-  transition: clip-path 1100ms var(--ease-out-expo);
+  transition: transform 420ms var(--ease-out-expo);
+  will-change: transform;
 }
 
-/* 悬停作者照片（或简介本身）时，从头到尾把下划线画完 */
-.detail-hero__photos:hover ~ .detail-hero__bio .detail-hero__bio-text::after,
-.detail-hero__bio:hover .detail-hero__bio-text::after {
-  clip-path: inset(0 0 0 0);
+.detail-hero__bio-text.is-underlined .bio-underline {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bio-underline {
+    transition: none;
+  }
 }
 
 .detail-hero__bio-text p {

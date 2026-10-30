@@ -133,6 +133,94 @@ function layoutPhotoStack(wrap, count) {
   });
 }
 
+/* 作者简介：按真实行盒画下划线，逐行从左往右依次出现，移开反向收回 */
+function setupBioUnderline(bioText) {
+  if (!bioText) return;
+  let lines = [];
+
+  const clear = () => {
+    bioText.querySelectorAll(".bio-underline").forEach((node) => node.remove());
+    lines = [];
+    bioText.classList.remove("is-underlined");
+  };
+
+  const measure = () => {
+    clear();
+    const box = bioText.getBoundingClientRect();
+    if (!box.width) return;
+
+    const rects = [];
+    const walker = document.createTreeWalker(bioText, NodeFilter.SHOW_TEXT, {
+      acceptNode: (node) => (node.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT)
+    });
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      Array.from(range.getClientRects()).forEach((rect) => {
+        if (rect.width < 2 || rect.height < 4) return;
+        rects.push({ left: rect.left - box.left, top: rect.bottom - box.top + 2, width: rect.width });
+      });
+    }
+    if (!rects.length) return;
+
+    // 同一行的多个片段合并成一条，行序 = 从上到下
+    rects.sort((a, b) => a.top - b.top || a.left - b.left);
+    const rows = [];
+    rects.forEach((rect) => {
+      const row = rows.find((item) => Math.abs(item.top - rect.top) < 6);
+      if (row) {
+        row.left = Math.min(row.left, rect.left);
+        row.right = Math.max(row.right, rect.left + rect.width);
+      } else {
+        rows.push({ top: rect.top, left: rect.left, right: rect.left + rect.width });
+      }
+    });
+
+    rows.forEach((row, index) => {
+      const bar = document.createElement("span");
+      bar.className = "bio-underline";
+      bar.style.left = row.left + "px";
+      bar.style.top = row.top + "px";
+      bar.style.width = row.right - row.left + "px";
+      bar.dataset.index = String(index);
+      bioText.appendChild(bar);
+    });
+    lines = rows;
+  };
+
+  const setState = (on) => {
+    const bars = bioText.querySelectorAll(".bio-underline");
+    bars.forEach((bar) => {
+      const index = Number(bar.dataset.index) || 0;
+      const total = bars.length;
+      // 展开：从上到下依次；收起：从下往上依次
+      // 展开：从上到下依次；收起：从下往上依次
+      bar.style.transitionDelay = (on ? index * 95 : (total - 1 - index) * 70) + "ms";
+    });
+    bioText.classList.toggle("is-underlined", on);
+  };
+
+  const host = bioText.closest("[data-author-bio]");
+  const photos = document.querySelector("[data-author-photos]");
+  const bind = (node) => {
+    if (!node) return;
+    node.addEventListener("mouseenter", () => setState(true));
+    node.addEventListener("mouseleave", () => setState(false));
+    node.addEventListener("focusin", () => setState(true));
+    node.addEventListener("focusout", () => setState(false));
+  };
+  bind(host);
+  bind(photos);
+
+  measure();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+  let timer = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(measure, 180);
+  });
+}
+
 /* 作者照片 + 作者简介；两者都可缺席（匿名网文就没有简介） */
 function mountAuthor(book) {
   const photoWrap = document.querySelector("[data-author-photos]");
@@ -179,6 +267,7 @@ function mountAuthor(book) {
       bioText.appendChild(block);
     });
     bio.hidden = withBio.length === 0;
+    if (withBio.length) setupBioUnderline(bioText);
   }
 }
 
