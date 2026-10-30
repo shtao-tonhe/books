@@ -92,6 +92,44 @@
       </div>
     </div>
 
+    <div class="reader-panel__group reader-panel__group--switch">
+      <span class="reader-panel__label">聚焦阅读</span>
+      <button class="reader-switch" type="button" role="switch" aria-checked="false" data-focus-toggle>
+        <span class="reader-switch__dot"></span>
+      </button>
+    </div>
+
+    <div class="reader-panel__group" data-focus-options hidden>
+      <span class="reader-panel__label">聚焦范围</span>
+      <div class="reader-chips" data-focus-count>
+        <button class="reader-chip" type="button" data-count="1">1 段</button>
+        <button class="reader-chip" type="button" data-count="2">2 段</button>
+        <button class="reader-chip" type="button" data-count="3">3 段</button>
+      </div>
+    </div>
+
+    <div class="reader-panel__group" data-focus-options hidden>
+      <span class="reader-panel__label">聚焦底色 / 文字</span>
+      <div class="reader-colors">
+        <label class="reader-color">
+          <input type="color" data-focus-bg aria-label="聚焦背景色">
+          <span>底色</span>
+        </label>
+        <label class="reader-color">
+          <input type="color" data-focus-fg aria-label="聚焦文字色">
+          <span>文字</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="reader-panel__group" data-focus-options hidden>
+      <span class="reader-panel__label">弱化程度</span>
+      <div class="reader-slider">
+        <input class="reader-range" type="range" min="10" max="70" step="5" data-setting="focusDim" aria-label="弱化程度">
+        <span class="reader-panel__value" data-setting-value="focusDim">32</span>
+      </div>
+    </div>
+
     <div class="reader-panel__group">
       <span class="reader-panel__label">翻页</span>
       <div class="reader-chips" data-flow-chips>
@@ -100,6 +138,8 @@
       </div>
     </div>
   </section>
+
+  <p class="reader-hint" data-reader-hint hidden>聚焦阅读已开启：↑ ↓ 切换段落</p>
 
   <div class="reader-status" data-reader-status>正在打开…</div>
 

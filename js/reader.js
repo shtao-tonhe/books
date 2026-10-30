@@ -13,7 +13,12 @@ const DEFAULTS = {
   lineHeight: 19,   // 实际值 /10
   paragraph: 12,    // 实际值 /10
   margin: 48,
-  flow: "paginated"
+  flow: "paginated",
+  focus: false,         // 聚焦阅读
+  focusCount: 1,        // 一次聚焦几段
+  focusDim: 30,         // 非聚焦内容的不透明度（%）
+  focusBg: "#f7e2b0",   // 聚焦底色
+  focusFg: "#1f1b16"    // 聚焦文字色
 };
 
 const FONT_STACKS = {
@@ -60,6 +65,12 @@ export async function initReader() {
   const progressInput = document.querySelector("[data-reader-progress]");
   const progressLabel = document.querySelector("[data-reader-progress-label]");
   const statusEl = document.querySelector("[data-reader-status]");
+  const hintEl = document.querySelector("[data-reader-hint]");
+  const focusToggle = document.querySelector("[data-focus-toggle]");
+  const focusOptions = document.querySelectorAll("[data-focus-options]");
+  const focusCountChips = document.querySelectorAll("[data-focus-count] [data-count]");
+  const focusBgInput = document.querySelector("[data-focus-bg]");
+  const focusFgInput = document.querySelector("[data-focus-fg]");
 
   const showStatus = (text) => {
     if (!statusEl) return;
@@ -196,12 +207,147 @@ export async function initReader() {
   function onRelocated(location) {
     if (!location || !location.start) return;
     currentCfi = location.start.cfi;
+    // 换章节后需要重新挑聚焦段落（内容和 DOM 都换了一批）
+    if (location.start.href !== lastHref) {
+      lastHref = location.start.href;
+      window.setTimeout(() => applyFocus(false), 60);
+    }
     try {
       localStorage.setItem(progressKey(id), currentCfi);
     } catch (err) {
       /* 忽略 */
     }
     updateProgress();
+  }
+
+  /* ---------- 聚焦阅读 ---------- */
+
+  const BLOCK_SELECTOR = "p, li, h1, h2, h3, h4, h5, h6, blockquote, dd, td";
+  let focusIndex = 0;          // 当前聚焦块在该章节里的序号
+  let pendingFocus = null;     // "first" | "last"：翻到新章节后从哪头开始
+  let lastHref = null;         // 上一次渲染的章节，用来判断是否换章
+
+  function currentContents() {
+    if (!rendition) return null;
+    const list = rendition.getContents();
+    if (!list || !list.length) return null;
+    return list[list.length - 1];
+  }
+
+  function blocksOf(doc) {
+    return Array.from(doc.querySelectorAll(BLOCK_SELECTOR)).filter(
+      (node) => (node.textContent || "").trim().length > 0
+    );
+  }
+
+  /* 把聚焦样式注入书内文档（不做 reflow，靠 box-shadow 撑出底色） */
+  function injectFocusStyle(contents) {
+    const doc = contents.document || contents;
+    if (!doc || !doc.head) return;
+    let style = doc.getElementById("reader-focus-style");
+    if (!style) {
+      style = doc.createElement("style");
+      style.id = "reader-focus-style";
+      doc.head.appendChild(style);
+    }
+    const dim = Math.max(0.1, Math.min(0.9, (settings.focusDim || 30) / 100));
+    style.textContent = `
+      body[data-reader-focus="on"] :is(${BLOCK_SELECTOR}) {
+        opacity: ${dim} !important;
+        transition: opacity .28s ease, background-color .28s ease, color .28s ease;
+      }
+      body[data-reader-focus="on"] :is(${BLOCK_SELECTOR}).reader-focus-target {
+        opacity: 1 !important;
+        background-color: ${settings.focusBg} !important;
+        color: ${settings.focusFg} !important;
+        border-radius: 4px;
+        box-shadow: 0 0 0 0.55em ${settings.focusBg};
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+      }
+    `;
+  }
+
+  /* 聚焦块不在可视区时，翻到它所在的那一页 */
+  function revealBlock(target) {
+    const contents = currentContents();
+    if (!target || !contents || !rendition) return;
+    const doc = contents.document || contents;
+    const rect = target.getBoundingClientRect();
+    const view = doc.defaultView || window;
+    const visible =
+      rect.bottom > 0 && rect.top < view.innerHeight && rect.right > 0 && rect.left < view.innerWidth;
+    if (visible) return;
+    if (typeof contents.cfiFromNode !== "function") return;
+    try {
+      const cfi = contents.cfiFromNode(target);
+      if (cfi) rendition.display(cfi);
+    } catch (err) {
+      /* 忽略 */
+    }
+  }
+
+  function applyFocus(preserveIndex = true) {
+    const contents = currentContents();
+    if (!contents) return;
+    const doc = contents.document || contents;
+    if (!doc || !doc.body) return;
+
+    injectFocusStyle(contents);
+    doc.body.dataset.readerFocus = settings.focus ? "on" : "off";
+    doc.querySelectorAll(".reader-focus-target").forEach((node) => node.classList.remove("reader-focus-target"));
+
+    if (!settings.focus) {
+      if (hintEl) hintEl.hidden = true;
+      return;
+    }
+
+    const blocks = blocksOf(doc);
+    if (!blocks.length) return;
+    if (!preserveIndex && pendingFocus === "last") focusIndex = blocks.length - 1;
+    else if (!preserveIndex) focusIndex = 0;
+    pendingFocus = null;
+    focusIndex = Math.max(0, Math.min(blocks.length - 1, focusIndex));
+
+    const count = Math.max(1, Number(settings.focusCount) || 1);
+    for (let i = 0; i < count; i += 1) {
+      const target = blocks[focusIndex + i];
+      if (target) target.classList.add("reader-focus-target");
+    }
+
+    if (hintEl) {
+      hintEl.hidden = false;
+      hintEl.classList.remove("is-faded");
+      window.clearTimeout(hintEl.__timer);
+      hintEl.__timer = window.setTimeout(() => hintEl.classList.add("is-faded"), 2600);
+    }
+  }
+
+  /* 上下键移动聚焦；走到章节两端就翻页 */
+  function moveFocus(delta) {
+    if (!settings.focus) return false;
+    const contents = currentContents();
+    const doc = contents && (contents.document || contents);
+    if (!doc || !doc.body) return false;
+    const blocks = blocksOf(doc);
+    if (!blocks.length) return false;
+
+    const nextIndex = focusIndex + delta;
+    if (nextIndex < 0) {
+      pendingFocus = "last";
+      if (rendition) rendition.prev();
+      return true;
+    }
+    if (nextIndex >= blocks.length) {
+      pendingFocus = "first";
+      if (rendition) rendition.next();
+      return true;
+    }
+
+    focusIndex = nextIndex;
+    applyFocus(true);
+    revealBlock(blocks[focusIndex]);
+    return true;
   }
 
   /* ---------- 渲染 ---------- */
@@ -229,7 +375,20 @@ export async function initReader() {
     rendition.on("relocated", onRelocated);
     rendition.hooks.content.register((contents) => {
       const doc = contents.document || contents;
-      if (doc && doc.addEventListener) doc.addEventListener("keydown", onKeyDown);
+      if (!doc || !doc.addEventListener) return;
+      doc.addEventListener("keydown", onKeyDown);
+      doc.addEventListener("click", (event) => {
+        if (!settings.focus) return;
+        const block = event.target.closest && event.target.closest(BLOCK_SELECTOR);
+        if (!block) return;
+        const blocks = blocksOf(doc);
+        const index = blocks.indexOf(block);
+        if (index < 0) return;
+        focusIndex = index;
+        applyFocus(true);
+      });
+      injectFocusStyle(contents);
+      applyFocus(false);
     });
     // epub.js 只按首次测到的高度铺 iframe，布局晚一点就得手动 resize
     rendition.display(currentCfi || undefined);
@@ -281,14 +440,24 @@ export async function initReader() {
     document.querySelectorAll("[data-flow]").forEach((chip) => {
       chip.classList.toggle("is-active", chip.dataset.flow === settings.flow);
     });
+    if (focusToggle) focusToggle.setAttribute("aria-checked", String(!!settings.focus));
+    focusOptions.forEach((node) => {
+      node.hidden = !settings.focus;
+    });
+    document.querySelectorAll("[data-focus-count] [data-count]").forEach((chip) => {
+      chip.classList.toggle("is-active", Number(chip.dataset.count) === Number(settings.focusCount));
+    });
+    if (focusBgInput && focusBgInput.value !== settings.focusBg) focusBgInput.value = settings.focusBg;
+    if (focusFgInput && focusFgInput.value !== settings.focusFg) focusFgInput.value = settings.focusFg;
+
     document.querySelectorAll("[data-setting]").forEach((input) => {
       const key = input.dataset.setting;
       if (key && settings[key] != null) input.value = String(settings[key]);
       const label = document.querySelector(`[data-setting-value="${key}"]`);
       if (label && key) {
-        label.textContent = key === "size" || key === "margin"
-          ? String(settings[key])
-          : (settings[key] / 10).toFixed(1);
+        if (key === "focusDim") label.textContent = String(settings[key]);
+        else if (key === "size" || key === "margin") label.textContent = String(settings[key]);
+        else label.textContent = (settings[key] / 10).toFixed(1);
       }
     });
     if (stage) stage.style.setProperty("--reader-margin", `${settings.margin}px`);
@@ -303,10 +472,50 @@ export async function initReader() {
     }, 220);
   }
 
-  function applyChange() {
+  function applyChange(options = {}) {
     saveSettings(settings);
     syncUi();
+    if (options.focusOnly) {
+      applyFocus(true);
+      return;
+    }
     queueRebuild();
+  }
+
+  /* 聚焦类设置：直接改书内样式，不用重建 */
+  if (focusToggle) {
+    focusToggle.addEventListener("click", () => {
+      settings.focus = !settings.focus;
+      if (settings.focus) focusIndex = focusIndex || 0;
+      applyChange({ focusOnly: true });
+      if (settings.focus) {
+        const contents = currentContents();
+        const doc = contents && (contents.document || contents);
+        const blocks = doc && doc.body ? blocksOf(doc) : [];
+        if (blocks.length) revealBlock(blocks[Math.min(focusIndex, blocks.length - 1)]);
+      }
+    });
+  }
+
+  document.querySelectorAll("[data-focus-count] [data-count]").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      settings.focusCount = Number(chip.dataset.count) || 1;
+      applyChange({ focusOnly: true });
+    });
+  });
+
+  if (focusBgInput) {
+    focusBgInput.addEventListener("input", () => {
+      settings.focusBg = focusBgInput.value;
+      applyChange({ focusOnly: true });
+    });
+  }
+
+  if (focusFgInput) {
+    focusFgInput.addEventListener("input", () => {
+      settings.focusFg = focusFgInput.value;
+      applyChange({ focusOnly: true });
+    });
   }
 
   document.querySelectorAll("[data-font]").forEach((chip) => {
@@ -327,7 +536,8 @@ export async function initReader() {
     input.addEventListener("input", () => {
       const key = input.dataset.setting;
       settings[key] = Number(input.value);
-      applyChange();
+      // 弱化程度只影响书内样式，不需要重建
+      applyChange(key === "focusDim" ? { focusOnly: true } : undefined);
     });
   });
 
@@ -378,6 +588,11 @@ export async function initReader() {
   }
 
   function onKeyDown(event) {
+    if (settings.focus && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
+      event.preventDefault();
+      moveFocus(event.key === "ArrowDown" ? 1 : -1);
+      return;
+    }
     if (event.key === "ArrowRight" || event.key === " " || event.key === "PageDown") {
       event.preventDefault();
       next();

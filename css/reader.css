@@ -275,6 +275,119 @@
   background: color-mix(in srgb, var(--accent) 16%, transparent);
 }
 
+/* ---------- 聚焦阅读开关 ---------- */
+
+.reader-panel__group--switch {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reader-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-2) 80%, transparent);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) var(--ease-spring);
+}
+
+.reader-switch__dot {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  translate: 0 -50%;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  transition: left var(--dur-fast) var(--ease-spring), background var(--dur-fast) var(--ease-spring);
+}
+
+.reader-switch[aria-checked="true"] {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  border-color: var(--accent);
+}
+
+.reader-switch[aria-checked="true"] .reader-switch__dot {
+  left: 23px;
+  background: var(--accent-strong);
+}
+
+/* ---------- 聚焦底色 / 文字 ---------- */
+
+.reader-colors {
+  display: flex;
+  gap: 10px;
+}
+
+.reader-color {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.reader-color input {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.reader-color input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.reader-color input::-webkit-color-swatch {
+  border: 0;
+  border-radius: 5px;
+}
+
+/* ---------- 聚焦模式提示 ---------- */
+
+.reader-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 68px;
+  translate: -50% 0;
+  z-index: 16;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  color: var(--text-tertiary);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  transition: opacity var(--dur-med) var(--ease-out-expo);
+}
+
+.reader-hint[hidden] {
+  display: none;
+}
+
+.reader-hint.is-faded {
+  opacity: 0;
+}
+
 /* ---------- 状态提示 ---------- */
 
 .reader-status {
