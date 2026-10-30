@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>荐书 · 阅读</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&family=Lora:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/reader.css">
+</head>
+<body class="reader">
+  <header class="reader-bar" data-reader-bar>
+    <a class="back-link reader-bar__back" data-reader-back href="index.html">
+      <span class="back-link__arrow">←</span>
+      <span data-reader-back-label>返回详情</span>
+    </a>
+    <p class="reader-bar__title" data-reader-title></p>
+    <div class="reader-bar__actions">
+      <button class="reader-icon-btn" type="button" data-reader-theme aria-label="切换明暗" title="切换明暗">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M5.8 5.8 4.2 4.2M19.8 19.8l-1.6-1.6M18.2 5.8l1.6-1.6M4.2 19.8l1.6-1.6"/>
+        </svg>
+      </button>
+      <button class="reader-icon-btn" type="button" data-reader-settings aria-label="阅读设置" title="阅读设置" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.2"/>
+          <path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a1.9 1.9 0 1 1-2.7 2.7l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a1.9 1.9 0 1 1-3.8 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a1.9 1.9 0 1 1-2.7-2.7l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a1.9 1.9 0 1 1 0-3.8h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a1.9 1.9 0 1 1 2.7-2.7l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a1.9 1.9 0 1 1 3.8 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a1.9 1.9 0 1 1 2.7 2.7l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a1.9 1.9 0 1 1 0 3.8h-.1a1.6 1.6 0 0 0-1.5 1z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="reader-stage" data-reader-stage>
+    <button class="reader-arrow reader-arrow--prev" type="button" data-reader-prev aria-label="上一页">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="reader-viewer" data-reader-viewer></div>
+    <button class="reader-arrow reader-arrow--next" type="button" data-reader-next aria-label="下一页">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <footer class="reader-foot" data-reader-foot>
+    <input class="reader-range" type="range" min="0" max="1000" value="0" step="1" data-reader-progress aria-label="阅读进度">
+    <span class="reader-foot__value" data-reader-progress-label>0%</span>
+  </footer>
+
+  <section class="reader-panel" data-reader-panel hidden aria-label="阅读设置">
+    <div class="reader-panel__group">
+      <span class="reader-panel__label">字体</span>
+      <div class="reader-chips" data-font-chips>
+        <button class="reader-chip" type="button" data-font="serif">衬线</button>
+        <button class="reader-chip" type="button" data-font="sans">黑体</button>
+        <button class="reader-chip" type="button" data-font="system">系统</button>
+      </div>
+    </div>
+
+    <div class="reader-panel__group">
+      <span class="reader-panel__label">字号</span>
+      <div class="reader-slider">
+        <input class="reader-range" type="range" min="15" max="30" step="1" data-setting="size" aria-label="字号">
+        <span class="reader-panel__value" data-setting-value="size">18</span>
+      </div>
+    </div>
+
+    <div class="reader-panel__group">
+      <span class="reader-panel__label">行高</span>
+      <div class="reader-slider">
+        <input class="reader-range" type="range" min="14" max="24" step="1" data-setting="lineHeight" aria-label="行高">
+        <span class="reader-panel__value" data-setting-value="lineHeight">1.9</span>
+      </div>
+    </div>
+
+    <div class="reader-panel__group">
+      <span class="reader-panel__label">段距</span>
+      <div class="reader-slider">
+        <input class="reader-range" type="range" min="0" max="20" step="1" data-setting="paragraph" aria-label="段距">
+        <span class="reader-panel__value" data-setting-value="paragraph">1.2</span>
+      </div>
+    </div>
+
+    <div class="reader-panel__group">
+      <span class="reader-panel__label">页边距</span>
+      <div class="reader-slider">
+        <input class="reader-range" type="range" min="16" max="160" step="4" data-setting="margin" aria-label="页边距">
+        <span class="reader-panel__value" data-setting-value="margin">48</span>
+      </div>
+    </div>
+
+    <div class="reader-panel__group">
+      <span class="reader-panel__label">翻页</span>
+      <div class="reader-chips" data-flow-chips>
+        <button class="reader-chip" type="button" data-flow="paginated">分页</button>
+        <button class="reader-chip" type="button" data-flow="scrolled">滚动</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="reader-status" data-reader-status>正在打开…</div>
+
+  <script src="js/vendor/jszip.min.js"></script>
+  <script src="js/vendor/epub.min.js"></script>
+  <script type="module">
+    import { initTheme } from "./js/utils.js";
+    import { initReader } from "./js/reader.js";
+    initTheme();
+    initReader();
+  </script>
+</body>
+</html>

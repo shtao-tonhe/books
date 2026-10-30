@@ -1,0 +1,315 @@
+/* =========================================================
+   阅读页（reader.html）：epub.js 渲染 + 主题/排版自定义
+   ========================================================= */
+
+.reader {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ---------- 顶栏 ---------- */
+
+.reader-bar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: clamp(10px, 1.4vw, 14px) clamp(16px, 3vw, 28px);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.reader-bar__back {
+  grid-column: 1;
+  justify-self: start;
+}
+
+.reader-bar__title {
+  grid-column: 2;
+  justify-self: center;
+  max-width: min(42vw, 420px);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.reader-bar__actions {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  gap: 8px;
+}
+
+.reader-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-2) 82%, transparent);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-spring),
+    border-color var(--dur-fast) var(--ease-spring),
+    background var(--dur-fast) var(--ease-spring);
+}
+
+.reader-icon-btn:hover,
+.reader-icon-btn[aria-expanded="true"] {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+/* ---------- 正文区 ---------- */
+
+.reader-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: clamp(64px, 8vh, 78px);
+  margin-bottom: 58px;
+  padding-inline: var(--reader-margin, 48px);
+  transition: padding-inline var(--dur-med) var(--ease-out-expo);
+}
+
+.reader-viewer {
+  width: 100%;
+  height: 100%;
+}
+
+.reader-viewer iframe {
+  border: 0;
+}
+
+.reader-arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(12px);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out-expo), color var(--dur-fast);
+}
+
+.reader-stage:hover .reader-arrow {
+  opacity: 1;
+}
+
+.reader-arrow:hover {
+  color: var(--text-primary);
+}
+
+.reader-arrow--prev {
+  left: 12px;
+}
+
+.reader-arrow--next {
+  right: 12px;
+}
+
+/* ---------- 底部进度 ---------- */
+
+.reader-foot {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px clamp(16px, 3vw, 28px);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.reader-foot__value {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  min-width: 40px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.reader-range {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1 1 auto;
+  height: 18px;
+  background: none;
+  cursor: pointer;
+}
+
+.reader-range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text-tertiary) 30%, transparent);
+}
+
+.reader-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  border: 2px solid var(--bg);
+}
+
+.reader-range::-moz-range-track {
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text-tertiary) 30%, transparent);
+}
+
+.reader-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: var(--accent-strong);
+}
+
+/* ---------- 设置浮层 ---------- */
+
+.reader-panel {
+  position: fixed;
+  right: clamp(14px, 3vw, 28px);
+  bottom: 62px;
+  z-index: 30;
+  width: min(300px, calc(100vw - 28px));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 18px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  backdrop-filter: blur(26px) saturate(1.3);
+  -webkit-backdrop-filter: blur(26px) saturate(1.3);
+  box-shadow: var(--shadow-card);
+}
+
+.reader-panel[hidden] {
+  display: none;
+}
+
+.reader-panel__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reader-panel__label {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.reader-slider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reader-panel__value {
+  min-width: 34px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.reader-chips {
+  display: flex;
+  gap: 6px;
+}
+
+.reader-chip {
+  flex: 1 1 0;
+  padding: 7px 0;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  color: var(--text-tertiary);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-spring);
+}
+
+.reader-chip:hover {
+  color: var(--text-primary);
+}
+
+.reader-chip.is-active {
+  color: var(--text-primary);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+/* ---------- 状态提示 ---------- */
+
+.reader-status {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-tertiary);
+  letter-spacing: 0.08em;
+  background: var(--bg);
+  transition: opacity var(--dur-med) var(--ease-out-expo);
+}
+
+.reader-status[hidden] {
+  display: none;
+}
+
+.reader-status.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .reader-stage {
+    padding-inline: var(--reader-margin, 20px);
+  }
+  .reader-arrow {
+    display: none;
+  }
+  .reader-bar__title {
+    max-width: 40vw;
+    font-size: 13px;
+  }
+}

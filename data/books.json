@@ -174,6 +174,436 @@
       "related": []
     },
     {
+      "id": "willpower",
+      "title": "自控力",
+      "titleEn": "Willpower: Rediscovering the Greatest Human Strength",
+      "author": "凯利·麦格尼格尔",
+      "author_photo": "assets/covers/009_author.jpg",
+      "author_desc": "凯利·麦格尼格尔教授（Kelly McGonigal, Ph.D.）是斯坦福大学备受赞誉的心理学家，也是医学健康促进项目的健康教育家。她为专业人士和普通大众开设的心理学课程，包括“意志力科学”（The Science of Willpower）和“在压力下好好生活”（Living Well with Stress），都是斯坦福大学继续教育学院历史上最受欢迎的课程。她还为《今日心理学》（Psychology Today）杂志网站开设了“意志力科学”博客。她目前居住在加利福尼亚州的帕洛阿尔托市。",
+      "cover": "assets/covers/009.jpg",
+      "coverPalette": {
+        "bgTop": "rgba(64, 82, 99, 0.9)",
+        "bgBottom": "rgba(34, 45, 56, 0.95)",
+        "accent": "rgba(182,204,222,0.9)"
+      },
+      "meta": {
+        "publisher": "中信出版社",
+        "publishYear": "2012-6",
+        "originalTitle": "Willpower: Rediscovering the Greatest Human Strength",
+        "translator": "王岑卉"
+      },
+      "tags": [
+        "心理学",
+        "自我管理",
+        "意志力",
+        "行为科学"
+      ],
+      "type": [
+        "已读"
+      ],
+      "status": "read",
+      "pinned": true,
+      "pinText": "推荐",
+      "sort": 3,
+      "rating": 8.7,
+      "intro": "自控力不是单纯的硬扛忍耐，而是大脑三种力量：我要做、我不要、我想要的博弈。",
+      "description": "斯坦福大学心理学教授凯利·麦格尼格尔打破大众对意志力的传统误解：意志力不是一种美德，而是类似肌肉的生理心理能力，会消耗、可以训练，但也会疲劳。书中从神经科学、心理学、经济学多维度解释自控力的底层原理，拆解意志力损耗、道德许可、延迟满足、压力与自控的冲突等经典陷阱。\n\n本书没有鸡汤式口号，提供可落地的训练方法，帮助识别大脑的本能冲动，平衡短期诱惑和长期目标，提升自我管理能力。同时也指出自控力有极限，过度消耗意志力反而会导致崩盘。",
+      "aiSummary": {
+        "enabled": true,
+        "text": "意志力是「我要做、我不要、我想要」三种力量的组合，它像肌肉，使用后会消耗能量；道德许可、多巴胺诱惑、压力疲劳都会削弱自控。提升自控不是强行压制欲望，而是觉察冲动、减少意志力不必要的消耗。",
+        "core": [
+          "意志力的三重力量：我要做/我不要/我想要",
+          "意志力损耗理论（肌肉模型）",
+          "道德许可效应",
+          "多巴胺奖励陷阱",
+          "压力、疲劳与自控的负相关"
+        ],
+        "graph": {
+          "type": "image",
+          "src": "assets/img/willpower-mindmap.png",
+          "alt": "自控力 核心图谱",
+          "caption": "手动整理：意志力模型与自控陷阱图谱"
+        }
+      },
+      "quotes": [
+        {
+          "text": "意志力就是驾驭「我要做」「我不要」和「我想要」这三种力量的能力。",
+          "note": "全书核心定义"
+        },
+        {
+          "text": "当你自控的时候，你的大脑在消耗能量。能量耗尽，自控力就会下降。",
+          "note": "意志力肌肉模型"
+        },
+        {
+          "text": "我们往往会用「做过好事」为借口，允许自己放纵。这就是道德许可。",
+          "note": "最容易踩的自控陷阱"
+        }
+      ],
+      "files": [
+        {
+          "name": "《自控力》.epub",
+          "path": "files/003.epub"
+        }
+      ],
+      "extraReading": [
+        {
+          "title": "《原子习惯》",
+          "url": "https://book.douban.com/subject/34429835/",
+          "note": "习惯视角，从行为设计减少意志力消耗"
+        },
+        {
+          "title": "《被讨厌的勇气》",
+          "url": "https://book.douban.com/subject/26945474/",
+          "note": "区分自我控制与自我接纳"
+        }
+      ],
+      "related": []
+    },
+    {
+      "id": "the-crowd",
+      "title": "乌合之众",
+      "titleEn": "The Crowd: A Study of the Popular Mind",
+      "author": "古斯塔夫·勒庞",
+      "author_photo": "assets/covers/010_author.jpg",
+      "author_desc": "古斯塔夫・勒庞 Gustave Le Bon(1841-1931) 法国著名社会心理学家。他自1894年始，写下一系列社会心理学著作，以本书最为著名；在社会心理学领域已有的著作中，最有影响的，也是这本并不很厚的《乌合之众》。古斯塔夫・勒庞在他在书中极为精致地描述了集体心态，对人们理解集体行为的作用以及对社会心理学的思考发挥了巨大影响。《乌合之众--大众心理研究》在西方已印至第29版，其观点新颖，语言生动，是群体行为的研究者不可不读的佳作。",
+      "cover": "assets/covers/010.jpg",
+      "coverPalette": {
+        "bgTop": "rgba(56, 54, 62, 0.9)",
+        "bgBottom": "rgba(30, 29, 34, 0.95)",
+        "accent": "rgba(206, 202, 214, 0.9)"
+      },
+      "meta": {
+        "publisher": "中央编译出版社",
+        "publishYear": "2014-4",
+        "originalTitle": "Psychologie des foules",
+        "translator": "冯克利"
+      },
+      "tags": [
+        "社会心理学",
+        "群体心理学",
+        "大众传播",
+        "经典社科"
+      ],
+      "type": [
+        "已读"
+      ],
+      "status": "read",
+      "pinned": true,
+      "pinText": "经典",
+      "sort": 4,
+      "rating": 8.8,
+      "intro": "个体一旦融入群体，理性被淹没，个性消失，思想与情感被暗示与传染主导，群体往往走向极端。",
+      "description": "《乌合之众》是勒庞对群体心理的开创性研究。他指出，当人置身于群体之中，个人独立意识和理性判断会被削弱，取而代之的是情绪化、易受暗示、冲动盲从的「群体心理」。群体不一定比个体更愚蠢，但群体更容易被煽动、被操纵，也更容易走极端。\n\n勒庞分析了群体的形成机制、情绪传染、领袖与说服、群体意见与信念、以及宗教、政治、革命等场景中的群体行为。尽管写于19世纪末，书中对大众动员、舆论操控、群体狂热的观察，至今仍极具解释力，是社会心理学与传播学绕不开的经典。",
+      "aiSummary": {
+        "enabled": true,
+        "text": "个体进入群体后，理性让位于无意识，个性被抹平，情绪被暗示与传染放大。群体冲动、易变、轻信，领袖通过断言、重复、传染来操纵群体。理解群体心理，是识别大众狂热与舆论操纵的起点。",
+        "core": [
+          "群体心理：个体理性的消失",
+          "情绪感染与暗示",
+          "群体的冲动、易变、偏执",
+          "领袖的断言、重复、传染三技法",
+          "群体意见的塑造与瓦解"
+        ],
+        "graph": {
+          "type": "image",
+          "src": "assets/img/the-crowd-mindmap.png",
+          "alt": "乌合之众 核心图谱",
+          "caption": "手动整理：群体心理机制图谱"
+        }
+      },
+      "quotes": [
+        {
+          "text": "个人一旦融入群体，其个性便会湮没，群体的思想占据统治地位。",
+          "note": "群体心理的核心命题"
+        },
+        {
+          "text": "群体永远漫游在无意识的领地，随时听命于一切暗示。",
+          "note": "群体易受暗示"
+        },
+        {
+          "text": "断言、重复、传染——是领袖说服群体的三件法宝。",
+          "note": "群体操纵技法"
+        }
+      ],
+      "files": [
+        {
+          "name": "《乌合之众》.epub",
+          "path": "files/004.epub"
+        }
+      ],
+      "extraReading": [
+        {
+          "title": "《狂热分子》",
+          "url": "https://book.douban.com/subject/1008990/",
+          "note": "群体运动的心理机制延伸"
+        },
+        {
+          "title": "《娱乐至死》",
+          "url": "https://book.douban.com/subject/1069908/",
+          "note": "大众媒介对集体心理的塑造"
+        }
+      ],
+      "related": []
+    },
+    {
+      "id": "influence",
+      "title": "影响力",
+      "titleEn": "Influence: The Psychology of Persuasion",
+      "author": "罗伯特·西奥迪尼",
+      "author_photo": "assets/covers/005_author.png",
+      "cover": "assets/covers/011.jpg",
+      "coverPalette": {
+        "bgTop": "rgba(122, 76, 46, 0.9)",
+        "bgBottom": "rgba(68, 40, 24, 0.95)",
+        "accent": "rgba(220, 184, 140, 0.9)"
+      },
+      "meta": {
+        "publisher": "中信出版社",
+        "publishYear": "2015-9",
+        "originalTitle": "Influence: The Psychology of Persuasion",
+        "translator": "闾佳"
+      },
+      "tags": [
+        "社会心理学",
+        "行为经济学",
+        "营销",
+        "说服"
+      ],
+      "type": [
+        "已读"
+      ],
+      "status": "read",
+      "pinned": true,
+      "pinText": "推荐",
+      "sort": 5,
+      "rating": 9.0,
+      "intro": "互惠、承诺一致、社会认同、喜好、权威、稀缺——六大原则，看穿别人如何左右你，也学会正确影响别人。",
+      "description": "西奥迪尼用几十年卧底调查（做过销售、募捐、广告行业）总结出六类被普遍使用的说服与顺从心理机制：互惠、承诺与一致、社会认同、喜好、权威、稀缺。每条原则都有典型实验和真实商业案例支撑，解释为什么人会在无意识状态下答应别人的请求。\n\n本书既帮助读者识别生活中被商家、媒体、他人设计的心理套路，也提供了在合理场景下正确运用这些原则的边界。它不是教人操纵，而是建立一套「影响与被影响」的防护与使用意识。",
+      "aiSummary": {
+        "enabled": true,
+        "text": "人类在复杂环境中养成了六类固定的「一键触发」反应：互惠、承诺一致、社会认同、喜好、权威、稀缺。这些捷径在大多数时候有效，但也会被商家、舆论、操纵者利用。识别它们，是自由选择的第一步。",
+        "core": [
+          "互惠：先给后要，欠债感触发回报",
+          "承诺与一致：一旦表态，倾向于行为对齐",
+          "社会认同：看别人怎么做，跟随多数",
+          "喜好：外貌、相似、恭维降低防御",
+          "权威：头衔、制服、专家背书的服从",
+          "稀缺：越少越想要，怕错过驱动决策"
+        ],
+        "graph": {
+          "type": "image",
+          "src": "assets/img/influence-mindmap.png",
+          "alt": "影响力 核心图谱",
+          "caption": "手动整理：六类影响力原则地图"
+        }
+      },
+      "quotes": [
+        {
+          "text": "文明的进步，是通过不假思索就能完成的操作数量增加来实现的。",
+          "note": "捷径反应的底层逻辑"
+        },
+        {
+          "text": "我们在要别人帮忙之前，要是能给一个理由，成功的概率会更大。",
+          "note": "互惠与理由触发"
+        },
+        {
+          "text": "一旦做出了艰难的选择，或者站好了队，我们就会遇到各种压力，要让自己相信选得没错。",
+          "note": "承诺与一致"
+        }
+      ],
+      "files": [
+        {
+          "name": "《影响力》.epub",
+          "path": "files/005.epub"
+        }
+      ],
+      "extraReading": [
+        {
+          "title": "《细节》",
+          "url": "https://book.douban.com/subject/26353322/",
+          "note": "西奥迪尼团队后续：小细节触发大行为"
+        },
+        {
+          "title": "《先发影响力》",
+          "url": "https://book.douban.com/subject/27080957/",
+          "note": "西奥迪尼续作：在提出请求之前如何铺垫"
+        }
+      ],
+      "related": []
+    },
+    {
+      "id": "moneyball",
+      "title": "魔球",
+      "titleEn": "Moneyball: The Art of Winning an Unfair Game",
+      "author": "迈克尔·刘易斯",
+      "author_photo": "assets/covers/012_author.jpg",
+      "cover": "assets/covers/012.jpg",
+      "coverPalette": {
+        "bgTop": "rgba(30, 64, 90, 0.9)",
+        "bgBottom": "rgba(16, 35, 48, 0.95)",
+        "accent": "rgba(165, 202, 232, 0.9)"
+      },
+      "meta": {
+        "publisher": "中信出版社",
+        "publishYear": "2018-11",
+        "originalTitle": "Moneyball: The Art of Winning an Unfair Game",
+        "translator": "何非、王小蕊"
+      },
+      "tags": [
+        "商业",
+        "数据分析",
+        "体育",
+        "决策",
+        "反直觉"
+      ],
+      "type": [
+        "已读"
+      ],
+      "status": "read",
+      "pinned": true,
+      "pinText": "推荐",
+      "sort": 6,
+      "rating": 8.9,
+      "intro": "小预算球队挑战豪门，用数据推翻行业经验直觉，重新定义球员价值，以低成本取得高胜率。",
+      "description": "《魔球》讲述美国职棒奥克兰运动家队的真实故事：球队资金远低于豪门球队，无法高价签下明星球员。总经理比利·比恩抛弃球探沿用数十年的主观看人经验，引入棒球统计学，挖掘被市场低估、被传统眼光忽视的球员价值，用极低预算打造出强队，创造联赛连胜奇迹。\n\n本书不只是棒球故事，核心是一场认知革命：行业内长期依赖的经验、直觉、主观印象存在巨大盲区；数据指标可以揭示被忽略的真实价值，打破固有偏见，用理性量化决策对抗集体直觉偏差。这套思路后来扩散到篮球、足球、商业招聘、投资等诸多领域。",
+      "aiSummary": {
+        "enabled": true,
+        "text": "行业里的传统经验和主观直觉会形成集体偏见，很多价值被市场错估。魔球的核心：找到被忽略的有效量化指标，用数据替代主观判断，以有限资源捕获被低估的价值，实现以小博大。",
+        "core": [
+          "传统球探的主观评估偏差",
+          "棒球统计学：上垒率等被低估指标",
+          "市场系统性误判球员价值",
+          "低成本资源重构，以弱博强",
+          "直觉经验 vs 量化理性决策"
+        ],
+        "graph": {
+          "type": "image",
+          "src": "assets/img/moneyball-mindmap.png",
+          "alt": "魔球 核心图谱",
+          "caption": "手动整理：魔球量化决策思想图谱"
+        }
+      },
+      "quotes": [
+        {
+          "text": "棒球的问题在于，大家一直在观察错误的东西。",
+          "note": "全书核心洞察"
+        },
+        {
+          "text": "市场系统性地低估了上垒率的价值。",
+          "note": "魔球核心指标发现"
+        },
+        {
+          "text": "当所有人都用同一套眼光评估人才，就会出现定价漏洞。",
+          "note": "价值错配的底层逻辑"
+        }
+      ],
+      "files": [
+        {
+          "name": "《魔球》.epub",
+          "path": "files/006.epub"
+        }
+      ],
+      "extraReading": [
+        {
+          "title": "《信号与噪声》",
+          "url": "https://book.douban.com/subject/24538204/",
+          "note": "预测、统计模型与现实不确定性"
+        },
+        {
+          "title": "《点球成金》电影",
+          "url": "https://book.douban.com/subject/3020270/",
+          "note": "本书改编电影，直观理解魔球故事"
+        }
+      ],
+      "related": []
+    },
+    {
+      "id": "rational-choice-in-uncertain-world",
+      "title": "不确定世界的理性选择",
+      "titleEn": "Rational Choice in an Uncertain World",
+      "author": "雷德·海斯蒂 / 罗宾·道斯",
+      "author_photo": "assets/covers/013_author.jpg",
+      "cover": "assets/covers/013.jpg",
+      "coverPalette": {
+        "bgTop": "rgba(70, 72, 95, 0.9)",
+        "bgBottom": "rgba(38, 39, 54, 0.95)",
+        "accent": "rgba(192,194,222,0.9)"
+      },
+      "meta": {
+        "publisher": "人民邮电出版社",
+        "publishYear": "2013-10",
+        "originalTitle": "Rational Choice in an Uncertain World",
+        "translator": "郑全全"
+      },
+      "tags": [
+        "决策心理学",
+        "认知偏差",
+        "行为经济学",
+        "理性思维",
+        "判断与决策"
+      ],
+      "type": [
+        "已读"
+      ],
+      "status": "read",
+      "pinned": true,
+      "pinText": "经典",
+      "sort": 7,
+      "rating": 9.2,
+      "intro": "在充满不确定性的现实世界，理性不等于完美预测，而是建立一套判断、评估风险、权衡结果的决策框架，识别认知偏差，提升选择质量。",
+      "description": "本书是判断与决策领域经典教材，系统介绍人类如何在不确定条件下做出判断与选择。它对比「期望效用理论」的规范性理性模型，结合大量实验，揭示人类真实判断中存在的各类认知启发式与偏差：代表性启发、易得性启发、锚定、框架效应、损失厌恶等。\n\n书中区分两种理性：**工具理性**（选择能帮你达成目标）≠ 客观上不出错。理性决策不是预知未来，而是在信息有限、结果不确定的环境下，系统评估概率、价值、风险，减少思维陷阱。本书是行为决策领域的硬核基础读物，也是理解《思考，快与慢》底层理论的源头著作。",
+      "aiSummary": {
+        "enabled": true,
+        "text": "现实世界充满不确定性，人类不会按理想期望效用模型做决策，而是依赖启发式捷径，伴随大量系统性偏差。理性不是预测准确，而是你的选择逻辑和自身目标保持一致；学会拆解概率、识别偏差，提升不确定环境下的决策质量。",
+        "core": [
+          "规范性理论：期望效用理论（理想理性）",
+          "描述性理论：启发式与认知偏差",
+          "代表性启发、易得性启发、锚定效应",
+          "框架效应与损失厌恶",
+          "工具理性：手段与目标一致"
+        ],
+        "graph": {
+          "type": "image",
+          "src": "assets/img/rational-choice-in-uncertain-world-mindmap.png",
+          "alt": "不确定世界的理性选择 核心图谱",
+          "caption": "手动整理：不确定环境下的判断与决策图谱"
+        }
+      },
+      "quotes": [
+        {
+          "text": "理性选择关注的是达成目标的手段，而不是目标本身是否高尚。",
+          "note": "工具理性定义"
+        },
+        {
+          "text": "人们倾向于根据事件在头脑中容易想象的程度来估计它发生的概率。",
+          "note": "易得性启发"
+        },
+        {
+          "text": "同一个问题，不同表述框架，会导致截然不同的选择。",
+          "note": "框架效应"
+        }
+      ],
+      "files": [
+        {
+          "name": "《不确定世界的理性选择》.epub",
+          "path": "files/007.epub"
+        }
+      ],
+      "extraReading": [
+        {
+          "title": "《思考，快与慢》",
+          "url": "https://book.douban.com/subject/10785583/",
+          "note": "卡尼曼，启发式与偏差的通俗化表达"
+        },
+        {
+          "title": "《判断与决策》",
+          "url": "https://book.douban.com/subject/30227048/",
+          "note": "同领域进阶教材"
+        }
+      ],
+      "related": []
+    },
+    {
       "id": "thinking-in-bets",
       "title": "下注思考",
       "titleEn": "Thinking in Bets: Making Smarter Decisions When You Don't Have All the Facts",
@@ -315,7 +745,7 @@
           "bio": "文学作家，擅长对话体写作。"
         }
       ],
-      "cover": "assets/covers/004.svg",
+      "cover": "assets/covers/004.jpg",
       "coverPalette": {
         "bgTop": "rgba(127, 143, 160, 0.92)",
         "bgBottom": "rgba(63, 76, 88, 0.96)",

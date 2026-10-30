@@ -273,15 +273,41 @@ function mountAuthor(book) {
 
 const DOWNLOAD_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>';
 
+/* 在线阅读入口：只有存在 epub 且文件真的能取到才亮起来 */
+function mountReaderLink(book) {
+  const link = document.querySelector("[data-cover-read]");
+  const actions = document.querySelector("[data-cover-actions]");
+  if (!link) return;
+  link.hidden = true;
+  const epub = (Array.isArray(book.files) ? book.files : []).find((file) => /.epub$/i.test(file.path || ""));
+  if (!epub) return;
+
+  const from = readParam("from");
+  const href = `reader.html#id=${encodeURIComponent(book.id)}${from ? `&from=${encodeURIComponent(from)}` : ""}`;
+
+  fetch(epub.path, { method: "HEAD" })
+    .then((res) => {
+      if (!res.ok) return;
+      link.href = href;
+      link.hidden = false;
+      if (actions) actions.hidden = false;
+    })
+    .catch(() => {
+      /* 取不到就当作没有 */
+    });
+}
+
 /* 源文件：放到封面右下角，有文件才出现 */
 function mountDownloads(book) {
   const wrap = document.querySelector("[data-cover-downloads]");
+  const actions = document.querySelector("[data-cover-actions]");
   if (!wrap) return;
   const files = Array.isArray(book.files) ? book.files.filter((f) => f && f.path) : [];
   wrap.replaceChildren();
   wrap.hidden = files.length === 0;
+  if (actions && files.length) actions.hidden = false;
   files.forEach((file) => {
-    const link = el("a", "detail-cover__download");
+    const link = el("a", "detail-cover__download detail-cover__action");
     link.href = file.path;
     if (file.name) link.download = file.name;
     const label = `下载 ${file.name || "源文件"}`;
@@ -491,6 +517,7 @@ export async function renderBook() {
 
     mountAuthor(book);
     mountDownloads(book);
+    mountReaderLink(book);
 
     // 读者笔记：默认约定 data/notes/<id>.md，也可以在 books.json 里用 notes 指定别的路径
     const notesBlock = document.querySelector("[data-notes-block]");
